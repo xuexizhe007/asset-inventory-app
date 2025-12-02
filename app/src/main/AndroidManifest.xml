@@ -15,6 +15,19 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.AssetInventory">
         <activity
+            android:name=".ui.TaskListActivity"
+            android:exported="true"
+            android:screenOrientation="portrait">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        <activity
+            android:name=".ui.MainActivity"
+            android:screenOrientation="portrait" />
+
+        <activity
             android:name=".ui.QrScanActivity"
             android:screenOrientation="portrait" />
         <activity
@@ -23,15 +36,7 @@
         <activity
             android:name=".ui.AssetDetailActivity"
             android:screenOrientation="portrait" />
-        <activity
-            android:name=".ui.MainActivity"
-            android:exported="true"
-            android:screenOrientation="portrait">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
-        </activity>
+        
     </application>
 
 </manifest>

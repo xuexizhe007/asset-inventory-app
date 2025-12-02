@@ -8,7 +8,8 @@ import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import com.example.assetinventory.R
-import com.example.assetinventory.data.AssetRepository
+import com.example.assetinventory.data.LocalStore
+import com.example.assetinventory.model.Asset
 import com.example.assetinventory.model.AssetStatus
 
 class AssetDetailActivity : AppCompatActivity() {
@@ -23,13 +24,24 @@ class AssetDetailActivity : AppCompatActivity() {
     private lateinit var btnMatched: Button
     private lateinit var btnMismatch: Button
 
+    private var taskId: Long = -1L
     private var assetCode: String? = null
+    private var currentAsset: Asset? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_asset_detail)
 
         supportActionBar?.title = "资产详情"
+
+        taskId = intent.getLongExtra(EXTRA_TASK_ID, -1L)
+        assetCode = intent.getStringExtra(EXTRA_ASSET_CODE)
+
+        if (taskId <= 0L || assetCode.isNullOrEmpty()) {
+            Toast.makeText(this, "资产信息缺失", Toast.LENGTH_SHORT).show()
+            finish()
+            return
+        }
 
         tvCode = findViewById(R.id.tvCode)
         tvName = findViewById(R.id.tvName)
@@ -41,50 +53,55 @@ class AssetDetailActivity : AppCompatActivity() {
         btnMatched = findViewById(R.id.btnMatched)
         btnMismatch = findViewById(R.id.btnMismatch)
 
-        assetCode = intent.getStringExtra(EXTRA_ASSET_CODE)
-
-        val asset = assetCode?.let { AssetRepository.findByCode(it) }
-        if (asset == null) {
-            Toast.makeText(this, "未找到资产信息", Toast.LENGTH_SHORT).show()
-            finish()
-            return
-        }
-
-        render(asset)
-
         btnMatched.setOnClickListener {
-            AlertDialog.Builder(this)
-                .setTitle("确认相符")
-                .setMessage("是否需要补打资产标签？")
-                .setPositiveButton("是") { _: DialogInterface, _: Int ->
-                    asset.status = AssetStatus.LABEL_REPRINT
-                    Toast.makeText(this, "状态已设为：补打标签", Toast.LENGTH_SHORT).show()
-                    finish()
-                }
-                .setNegativeButton("否") { _: DialogInterface, _: Int ->
-                    asset.status = AssetStatus.MATCHED
-                    Toast.makeText(this, "状态已设为：相符", Toast.LENGTH_SHORT).show()
-                    finish()
-                }
-                .show()
+            currentAsset?.let { asset ->
+                AlertDialog.Builder(this)
+                    .setTitle("确认相符")
+                    .setMessage("是否需要补打资产标签？")
+                    .setPositiveButton("是") { _: DialogInterface, _: Int ->
+                        LocalStore.updateAssetStatus(this, taskId, asset.code, AssetStatus.LABEL_REPRINT)
+                        Toast.makeText(this, "状态已设为：补打标签", Toast.LENGTH_SHORT).show()
+                        finish()
+                    }
+                    .setNegativeButton("否") { _: DialogInterface, _: Int ->
+                        LocalStore.updateAssetStatus(this, taskId, asset.code, AssetStatus.MATCHED)
+                        Toast.makeText(this, "状态已设为：相符", Toast.LENGTH_SHORT).show()
+                        finish()
+                    }
+                    .show()
+            }
         }
 
         btnMismatch.setOnClickListener {
-            AssetEditActivity.start(this, asset.code)
+            currentAsset?.let { asset ->
+                AssetEditActivity.start(this, taskId, asset.code)
+            }
         }
     }
 
     override fun onResume() {
         super.onResume()
+        // 重新从数据库读取最新状态
         assetCode?.let {
-            val asset = AssetRepository.findByCode(it)
-            if (asset != null) {
-                render(asset)
+            val asset = LocalStore.findAssetByCode(this, taskId, it)
+            if (asset == null) {
+                Toast.makeText(this, "未找到资产信息", Toast.LENGTH_SHORT).show()
+                finish()
+                return
             }
+            currentAsset = asset
+
+            // 如果状态为不相符，说明在编辑页已确认修改，直接返回资产列表
+            if (asset.status == AssetStatus.MISMATCH) {
+                finish()
+                return
+            }
+
+            render(asset)
         }
     }
 
-    private fun render(asset: com.example.assetinventory.model.Asset) {
+    private fun render(asset: Asset) {
         tvCode.text = "资产编码：${asset.code}"
         tvName.text = "资产名称：${asset.name}"
         tvUser.text = "使用人：${asset.user.orEmpty()}"
@@ -95,6 +112,7 @@ class AssetDetailActivity : AppCompatActivity() {
     }
 
     companion object {
+        const val EXTRA_TASK_ID = "extra_task_id"
         const val EXTRA_ASSET_CODE = "extra_asset_code"
     }
 }
