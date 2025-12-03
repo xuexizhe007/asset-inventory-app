@@ -4,29 +4,42 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_margin="6dp"
-    card_view:cardCornerRadius="8dp"
-    card_view:cardElevation="2dp">
+    card_view:cardCornerRadius="12dp"
+    card_view:cardUseCompatPadding="true"
+    card_view:cardElevation="3dp">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:padding="12dp"
-        android:orientation="vertical">
+        android:orientation="vertical"
+        android:padding="12dp">
 
         <TextView
             android:id="@+id/tvTaskName"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="任务名称"
+            android:textColor="@color/text_primary"
             android:textSize="16sp"
             android:textStyle="bold" />
 
         <TextView
-            android:id="@+id/tvTaskInfo"
+            android:id="@+id/tvCreatedAt"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="4dp"
-            android:text="共 0 条资产" />
+            android:text="创建时间"
+            android:textColor="@color/text_secondary"
+            android:textSize="13sp" />
+
+        <TextView
+            android:id="@+id/tvAssetCount"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="2dp"
+            android:text="资产数量"
+            android:textColor="@color/text_secondary"
+            android:textSize="13sp" />
 
     </LinearLayout>
 

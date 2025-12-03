@@ -4,6 +4,7 @@ import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import android.widget.Button
+import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AlertDialog
@@ -11,15 +12,14 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.assetinventory.R
-import com.example.assetinventory.data.LocalStore
-import com.example.assetinventory.data.TaskInfo
+import com.example.assetinventory.data.AssetRepository
+import com.example.assetinventory.model.InventoryTask
 import com.example.assetinventory.util.ExcelImporter
 
 class TaskListActivity : AppCompatActivity() {
 
-    private lateinit var btnBackTaskList: Button
-    private lateinit var btnBack: Button
     private lateinit var btnImportTask: Button
+    private lateinit var tvEmpty: TextView
     private lateinit var rvTasks: RecyclerView
     private lateinit var adapter: TaskAdapter
 
@@ -37,14 +37,12 @@ class TaskListActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        AssetRepository.init(this)
         setContentView(R.layout.activity_task_list)
 
-        btnBackTaskList = findViewById(R.id.btnBackTaskList)
-        btnBack = findViewById(R.id.btnBack)
         btnImportTask = findViewById(R.id.btnImportTask)
+        tvEmpty = findViewById(R.id.tvEmpty)
         rvTasks = findViewById(R.id.rvTasks)
-
-        supportActionBar?.title = getString(R.string.task_list_title)
 
         adapter = TaskAdapter(emptyList()) { task ->
             openTask(task)
@@ -52,20 +50,11 @@ class TaskListActivity : AppCompatActivity() {
         rvTasks.layoutManager = LinearLayoutManager(this)
         rvTasks.adapter = adapter
 
-        btnBackTaskList.setOnClickListener {
-            // 已经在任务列表，可提示一下
-            Toast.makeText(this, "已在任务列表页面", Toast.LENGTH_SHORT).show()
-        }
-
-        btnBack.setOnClickListener {
-            finish()
-        }
-
         btnImportTask.setOnClickListener {
             openExcelPicker()
         }
 
-        loadTasks()
+        refreshTaskList()
     }
 
     private fun openExcelPicker() {
@@ -78,36 +67,30 @@ class TaskListActivity : AppCompatActivity() {
     private fun importExcel(uri: Uri) {
         try {
             val result = ExcelImporter.import(this, uri)
-            if (result.assets.isEmpty()) {
-                Toast.makeText(this, "表格没有有效资产数据", Toast.LENGTH_LONG).show()
-                return
-            }
-            LocalStore.insertTaskWithAssets(this, result.taskName, result.assets)
-            Toast.makeText(this, "导入成功，生成任务：${result.taskName}", Toast.LENGTH_LONG).show()
-            loadTasks()
+            val task = AssetRepository.createTask(this, result.taskName, result.assets)
+            Toast.makeText(this, "导入成功，共 ${result.assets.size} 条资产", Toast.LENGTH_LONG).show()
+            refreshTaskList()
+            openTask(task)
         } catch (e: Exception) {
             e.printStackTrace()
             AlertDialog.Builder(this)
                 .setTitle("导入失败")
                 .setMessage(e.message ?: "未知错误")
-                .setPositiveButton("确定", null)
+                .setPositiveButton(R.string.dialog_ok, null)
                 .show()
         }
     }
 
-    private fun loadTasks() {
-        val tasks: List<TaskInfo> = LocalStore.getTasks(this)
-        adapter.update(tasks)
-    }
-
-    private fun openTask(task: TaskInfo) {
-        if (task.assetCount <= 0) {
-            Toast.makeText(this, "该任务没有资产记录", Toast.LENGTH_SHORT).show()
-            return
-        }
+    private fun openTask(task: InventoryTask) {
+        AssetRepository.setCurrentTask(this, task.id)
         val intent = Intent(this, MainActivity::class.java)
         intent.putExtra(MainActivity.EXTRA_TASK_ID, task.id)
-        intent.putExtra(MainActivity.EXTRA_TASK_NAME, task.name)
         startActivity(intent)
+    }
+
+    private fun refreshTaskList() {
+        val list = AssetRepository.tasks
+        adapter.update(list)
+        tvEmpty.visibility = if (list.isEmpty()) android.view.View.VISIBLE else android.view.View.GONE
     }
 }

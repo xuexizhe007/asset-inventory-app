@@ -1,16 +1,19 @@
 <resources>
-    <color name="color_primary">#4CAF50</color>
-    <color name="color_primary_dark">#388E3C</color>
-    <color name="color_primary_light">#C8E6C9</color>
-    <color name="color_secondary">#03A9F4</color>
-    <color name="color_secondary_dark">#0288D1</color>
-    <color name="color_secondary_light">#B3E5FC</color>
+    <!-- 清新配色：薄荷绿 + 天空蓝等 -->
+    <color name="mint_primary">#4CAF93</color>
+    <color name="mint_primary_dark">#2E7D65</color>
+    <color name="mint_accent">#40C4FF</color>
+    <color name="background_light">#F5FFFA</color>
+    <color name="surface_light">#FFFFFF</color>
+    <color name="text_primary">#212121</color>
+    <color name="text_secondary">#757575</color>
+
     <color name="black">#000000</color>
     <color name="white">#FFFFFF</color>
 
-    <!-- 盘点状态颜色，清新风格且互不相同 -->
-    <color name="status_unchecked">#B0BEC5</color>   <!-- 灰蓝 -->
-    <color name="status_matched">#81C784</color>     <!-- 淡绿 -->
-    <color name="status_mismatch">#FF8A65</color>   <!-- 橙红 -->
-    <color name="status_reprint">#FFD54F</color>    <!-- 亮黄 -->
+    <!-- 盘点状态颜色，互不相同 -->
+    <color name="status_unchecked">#B0BEC5</color>
+    <color name="status_matched">#66BB6A</color>
+    <color name="status_mismatch">#EF5350</color>
+    <color name="status_reprint">#FFA726</color>
 </resources>

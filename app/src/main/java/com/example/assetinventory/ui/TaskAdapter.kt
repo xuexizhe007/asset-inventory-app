@@ -6,14 +6,18 @@ import android.view.ViewGroup
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.example.assetinventory.R
-import com.example.assetinventory.data.TaskInfo
+import com.example.assetinventory.model.InventoryTask
+import java.text.SimpleDateFormat
+import java.util.*
 
 class TaskAdapter(
-    private var items: List<TaskInfo>,
-    private val onItemClick: (TaskInfo) -> Unit
+    private var items: List<InventoryTask>,
+    private val onItemClick: (InventoryTask) -> Unit
 ) : RecyclerView.Adapter<TaskAdapter.TaskViewHolder>() {
 
-    fun update(newItems: List<TaskInfo>) {
+    private val sdf = SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.getDefault())
+
+    fun update(newItems: List<InventoryTask>) {
         items = newItems
         notifyDataSetChanged()
     }
@@ -32,12 +36,18 @@ class TaskAdapter(
 
     inner class TaskViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         private val tvTaskName: TextView = itemView.findViewById(R.id.tvTaskName)
-        private val tvTaskInfo: TextView = itemView.findViewById(R.id.tvTaskInfo)
+        private val tvCreatedAt: TextView = itemView.findViewById(R.id.tvCreatedAt)
+        private val tvAssetCount: TextView = itemView.findViewById(R.id.tvAssetCount)
 
-        fun bind(task: TaskInfo) {
+        fun bind(task: InventoryTask) {
             tvTaskName.text = task.name
-            tvTaskInfo.text = "共 ${task.assetCount} 条资产"
-            itemView.setOnClickListener { onItemClick(task) }
+            val context = itemView.context
+            tvCreatedAt.text = context.getString(R.string.task_created_at, sdf.format(Date(task.createdAt)))
+            tvAssetCount.text = context.getString(R.string.task_asset_count, task.assets.size)
+
+            itemView.setOnClickListener {
+                onItemClick(task)
+            }
         }
     }
 }

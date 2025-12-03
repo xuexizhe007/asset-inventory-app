@@ -62,6 +62,7 @@ object ExcelImporter {
             val row = sheet.getRow(i) ?: continue
             val code = getCellString(row.getCell(codeIndex), formatter)?.trim().orEmpty()
             val name = getCellString(row.getCell(nameIndex), formatter)?.trim().orEmpty()
+
             if (code.isEmpty() || name.isEmpty()) continue
 
             val user = getCellString(row.getCell(userIndex), formatter)?.trim()
@@ -69,10 +70,7 @@ object ExcelImporter {
             val location = getCellString(row.getCell(locationIndex), formatter)?.trim()
 
             val startDateCell = row.getCell(startDateIndex)
-            val startDate = if (startDateCell != null &&
-                startDateCell.cellType == CellType.NUMERIC &&
-                DateUtil.isCellDateFormatted(startDateCell)
-            ) {
+            val startDate = if (startDateCell != null && startDateCell.cellType == CellType.NUMERIC && DateUtil.isCellDateFormatted(startDateCell)) {
                 sdf.format(startDateCell.dateCellValue)
             } else {
                 getCellString(startDateCell, formatter)?.trim().orEmpty()

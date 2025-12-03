@@ -15,85 +15,65 @@ import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.assetinventory.R
-import com.example.assetinventory.data.LocalStore
+import com.example.assetinventory.data.AssetRepository
 import com.example.assetinventory.model.Asset
 import com.example.assetinventory.model.AssetStatus
 import com.example.assetinventory.util.PdfGenerator
 
 class MainActivity : AppCompatActivity() {
 
-    private lateinit var btnBackTaskList: Button
-    private lateinit var btnBack: Button
     private lateinit var tvTaskName: TextView
     private lateinit var etSearch: EditText
     private lateinit var btnFilterStatus: Button
     private lateinit var recyclerView: RecyclerView
     private lateinit var btnInventory: Button
     private lateinit var btnPrint: Button
-
-    private lateinit var tvSummaryTotal: TextView
-    private lateinit var tvSummaryMatched: TextView
-    private lateinit var tvSummaryReprint: TextView
-    private lateinit var tvSummaryMismatch: TextView
-    private lateinit var tvSummaryUnchecked: TextView
+    private lateinit var btnBackToTasks: Button
 
     private lateinit var adapter: AssetAdapter
-    private val selectedStatuses: MutableSet<AssetStatus> = mutableSetOf()
-    private var allAssets: MutableList<Asset> = mutableListOf()
 
-    private var taskId: Long = -1L
-    private var taskName: String = ""
+    private val selectedStatuses: MutableSet<AssetStatus> = mutableSetOf()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        AssetRepository.init(this)
         setContentView(R.layout.activity_main)
 
-        taskId = intent.getLongExtra(EXTRA_TASK_ID, -1L)
-        taskName = intent.getStringExtra(EXTRA_TASK_NAME) ?: ""
-
+        val taskId = intent.getLongExtra(EXTRA_TASK_ID, -1L)
         if (taskId <= 0L) {
-            Toast.makeText(this, "未找到任务信息", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, "未找到任务", Toast.LENGTH_SHORT).show()
             finish()
             return
         }
+        val task = AssetRepository.getTaskById(this, taskId)
+        if (task == null) {
+            Toast.makeText(this, "未找到任务", Toast.LENGTH_SHORT).show()
+            finish()
+            return
+        }
+        AssetRepository.setCurrentTask(this, taskId)
 
-        supportActionBar?.title = taskName
-
-        btnBackTaskList = findViewById(R.id.btnBackTaskList)
-        btnBack = findViewById(R.id.btnBack)
         tvTaskName = findViewById(R.id.tvTaskName)
         etSearch = findViewById(R.id.etSearch)
         btnFilterStatus = findViewById(R.id.btnFilterStatus)
         recyclerView = findViewById(R.id.rvAssets)
         btnInventory = findViewById(R.id.btnInventory)
         btnPrint = findViewById(R.id.btnPrint)
+        btnBackToTasks = findViewById(R.id.btnBackToTasks)
 
-        tvSummaryTotal = findViewById(R.id.tvSummaryTotal)
-        tvSummaryMatched = findViewById(R.id.tvSummaryMatched)
-        tvSummaryReprint = findViewById(R.id.tvSummaryReprint)
-        tvSummaryMismatch = findViewById(R.id.tvSummaryMismatch)
-        tvSummaryUnchecked = findViewById(R.id.tvSummaryUnchecked)
-
-        tvTaskName.text = "当前任务：$taskName"
-
-        btnBackTaskList.setOnClickListener {
-            val intent = Intent(this, TaskListActivity::class.java)
-            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
-            startActivity(intent)
-        }
-
-        btnBack.setOnClickListener {
-            finish()
-        }
-
-        adapter = AssetAdapter(emptyList()) { asset ->
-            val intent = Intent(this, AssetDetailActivity::class.java)
-            intent.putExtra(AssetDetailActivity.EXTRA_TASK_ID, taskId)
-            intent.putExtra(AssetDetailActivity.EXTRA_ASSET_CODE, asset.code)
-            startActivity(intent)
-        }
+        adapter = AssetAdapter(emptyList(), { asset ->
+            val intentDetail = Intent(this, AssetDetailActivity::class.java)
+            intentDetail.putExtra(AssetDetailActivity.EXTRA_ASSET_CODE, asset.code)
+            startActivity(intentDetail)
+        }, { _ ->
+            AssetRepository.onTaskChanged(this)
+        })
         recyclerView.layoutManager = LinearLayoutManager(this)
         recyclerView.adapter = adapter
+
+        btnBackToTasks.setOnClickListener {
+            finish()
+        }
 
         etSearch.addTextChangedListener(object : android.text.TextWatcher {
             override fun afterTextChanged(s: android.text.Editable?) {
@@ -108,55 +88,48 @@ class MainActivity : AppCompatActivity() {
         }
 
         btnInventory.setOnClickListener {
-            if (allAssets.isEmpty()) {
-                Toast.makeText(this, "该任务没有资产，请先导入任务", Toast.LENGTH_SHORT).show()
+            if (AssetRepository.getCurrentAssets(this).isEmpty()) {
+                Toast.makeText(this, "当前任务暂无资产", Toast.LENGTH_SHORT).show()
             } else {
                 checkCameraPermissionAndStartScan()
             }
         }
 
         btnPrint.setOnClickListener {
-            if (allAssets.isEmpty()) {
-                Toast.makeText(this, "该任务没有资产，请先导入任务", Toast.LENGTH_SHORT).show()
-            } else {
-                val selected = adapter.currentItems.filter { it.selectedForPrint }
-                PdfGenerator.generateLabelsPdf(this, taskName, selected)
+            val taskCurrent = AssetRepository.getCurrentTask(this)
+            if (taskCurrent == null) {
+                Toast.makeText(this, "当前任务不存在", Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
             }
+            val selected = taskCurrent.assets.filter { it.selectedForPrint }
+            PdfGenerator.generateLabelsPdf(this, taskCurrent.name, selected)
         }
 
-        loadAssets()
+        refreshTaskInfo()
+        applyFilter()
     }
 
     override fun onResume() {
         super.onResume()
-        loadAssets()
+        refreshTaskInfo()
+        applyFilter() // 确保从详情/编辑返回后状态刷新
     }
 
-    private fun loadAssets() {
-        allAssets = LocalStore.getAssetsForTask(this, taskId).toMutableList()
-        updateSummary()
-        applyFilter()
-    }
-
-    private fun updateSummary() {
-        val total = allAssets.size
-        val matched = allAssets.count { it.status == AssetStatus.MATCHED }
-        val reprint = allAssets.count { it.status == AssetStatus.LABEL_REPRINT }
-        val mismatch = allAssets.count { it.status == AssetStatus.MISMATCH }
-        val unchecked = allAssets.count { it.status == AssetStatus.UNCHECKED }
-
-        tvSummaryTotal.text = "总资产：$total"
-        tvSummaryMatched.text = "相符：$matched"
-        tvSummaryReprint.text = "补打标签：$reprint"
-        tvSummaryMismatch.text = "不相符：$mismatch"
-        tvSummaryUnchecked.text = "未盘点：$unchecked"
+    private fun refreshTaskInfo() {
+        val task = AssetRepository.getCurrentTask(this)
+        tvTaskName.text = if (task == null) {
+            getString(R.string.no_current_task)
+        } else {
+            getString(R.string.current_task, task.name, task.assets.size)
+        }
     }
 
     private fun applyFilter() {
         val keyword = etSearch.text.toString().trim()
         val hasStatusFilter = selectedStatuses.isNotEmpty()
+        val assets = AssetRepository.getCurrentAssets(this)
 
-        val filtered = allAssets.filter { asset ->
+        val filtered = assets.filter { asset ->
             val matchKeyword = if (keyword.isEmpty()) {
                 true
             } else {
@@ -217,8 +190,6 @@ class MainActivity : AppCompatActivity() {
 
     private fun startQrScan() {
         val intent = Intent(this, QrScanActivity::class.java)
-        intent.putExtra(QrScanActivity.EXTRA_TASK_ID, taskId)
-        intent.putExtra(QrScanActivity.EXTRA_TASK_NAME, taskName)
         startActivity(intent)
     }
 
@@ -237,9 +208,37 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    override fun onCreateOptionsMenu(menu: android.view.Menu?): Boolean {
+        menuInflater.inflate(R.menu.menu_main, menu)
+        return true
+    }
+
+    override fun onOptionsItemSelected(item: android.view.MenuItem): Boolean {
+        return when (item.itemId) {
+            R.id.action_delete_task -> {
+                val task = AssetRepository.getCurrentTask(this)
+                if (task == null) {
+                    Toast.makeText(this, "当前无任务", Toast.LENGTH_SHORT).show()
+                } else {
+                    AlertDialog.Builder(this)
+                        .setTitle("删除任务")
+                        .setMessage("确定要删除任务「${task.name}」及其全部资产吗？")
+                        .setPositiveButton("删除") { _, _ ->
+                            AssetRepository.deleteTask(this, task.id)
+                            Toast.makeText(this, "已删除任务", Toast.LENGTH_SHORT).show()
+                            finish()
+                        }
+                        .setNegativeButton("取消", null)
+                        .show()
+                }
+                true
+            }
+            else -> super.onOptionsItemSelected(item)
+        }
+    }
+
     companion object {
         private const val REQUEST_CAMERA_PERMISSION = 100
         const val EXTRA_TASK_ID = "extra_task_id"
-        const val EXTRA_TASK_NAME = "extra_task_name"
     }
 }

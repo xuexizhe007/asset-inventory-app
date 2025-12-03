@@ -8,6 +8,5 @@ data class Asset(
     var location: String?,
     val startDate: String,
     var status: AssetStatus = AssetStatus.UNCHECKED,
-    var selectedForPrint: Boolean = false,
-    var taskId: Long = 0L
+    var selectedForPrint: Boolean = false
 )

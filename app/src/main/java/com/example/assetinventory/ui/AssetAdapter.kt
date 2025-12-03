@@ -14,7 +14,8 @@ import com.example.assetinventory.model.AssetStatus
 
 class AssetAdapter(
     private var items: List<Asset>,
-    private val onItemClick: (Asset) -> Unit
+    private val onItemClick: (Asset) -> Unit,
+    private val onAssetUpdated: (Asset) -> Unit
 ) : RecyclerView.Adapter<AssetAdapter.AssetViewHolder>() {
 
     fun update(newItems: List<Asset>) {
@@ -55,15 +56,10 @@ class AssetAdapter(
             tvStatus.text = asset.status.displayName
 
             val context = itemView.context
-            val colorRes = when (asset.status) {
-                AssetStatus.UNCHECKED -> R.color.status_unchecked
-                AssetStatus.MATCHED -> R.color.status_matched
-                AssetStatus.MISMATCH -> R.color.status_mismatch
-                AssetStatus.LABEL_REPRINT -> R.color.status_reprint
-            }
+            val colorRes = asset.status.colorResId
             val bgColor = ContextCompat.getColor(context, colorRes)
             val drawable = GradientDrawable().apply {
-                cornerRadius = 8f
+                cornerRadius = 16f
                 setColor(bgColor)
             }
             tvStatus.background = drawable
@@ -72,6 +68,7 @@ class AssetAdapter(
             cbSelect.isChecked = asset.selectedForPrint
             cbSelect.setOnCheckedChangeListener { _, isChecked ->
                 asset.selectedForPrint = isChecked
+                onAssetUpdated(asset)
             }
 
             itemView.setOnClickListener {

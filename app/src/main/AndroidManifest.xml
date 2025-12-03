@@ -2,6 +2,10 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
 
     <uses-permission android:name="android.permission.CAMERA" />
+    <!-- 仅限 Android 9 及以下写公共目录 -->
+    <uses-permission
+        android:name="android.permission.WRITE_EXTERNAL_STORAGE"
+        android:maxSdkVersion="28" />
 
     <application
         android:allowBackup="true"
@@ -10,17 +14,18 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.AssetInventory">
-
-        <provider
-            android:name="androidx.core.content.FileProvider"
-            android:authorities="${applicationId}.fileprovider"
-            android:exported="false"
-            android:grantUriPermissions="true">
-            <meta-data
-                android:name="android.support.FILE_PROVIDER_PATHS"
-                android:resource="@xml/file_paths" />
-        </provider>
-
+        <activity
+            android:name=".ui.QrScanActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".ui.AssetEditActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".ui.AssetDetailActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".ui.MainActivity"
+            android:screenOrientation="portrait" />
         <activity
             android:name=".ui.TaskListActivity"
             android:exported="true"
@@ -30,23 +35,6 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-
-        <activity
-            android:name=".ui.MainActivity"
-            android:screenOrientation="portrait" />
-
-        <activity
-            android:name=".ui.AssetDetailActivity"
-            android:screenOrientation="portrait" />
-
-        <activity
-            android:name=".ui.AssetEditActivity"
-            android:screenOrientation="portrait" />
-
-        <activity
-            android:name=".ui.QrScanActivity"
-            android:screenOrientation="portrait" />
-
     </application>
 
 </manifest>
