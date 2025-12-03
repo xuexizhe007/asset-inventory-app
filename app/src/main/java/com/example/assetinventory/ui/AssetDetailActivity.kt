@@ -73,21 +73,22 @@ class AssetDetailActivity : AppCompatActivity() {
                 AlertDialog.Builder(this)
                     .setTitle("确认相符")
                     .setMessage("是否需要补打资产标签？")
-                    .setPositiveButton("是") { _: DialogInterface, _: Int ->
-                        LocalStore.updateAssetStatus(this, taskId, asset.code, AssetStatus.LABEL_REPRINT)
-                        Toast.makeText(this, "状态已设为：补打标签", Toast.LENGTH_SHORT).show()
-                        finish()
-                    }
-                    .setNegativeButton("否") { _: DialogInterface, _: Int ->
+                    .setPositiveButton("否") { _: DialogInterface, _: Int ->
                         LocalStore.updateAssetStatus(this, taskId, asset.code, AssetStatus.MATCHED)
                         Toast.makeText(this, "状态已设为：相符", Toast.LENGTH_SHORT).show()
+                        finish()
+                    }
+                    .setNegativeButton("是") { _: DialogInterface, _: Int ->
+                        LocalStore.updateAssetStatus(this, taskId, asset.code, AssetStatus.LABEL_REPRINT)
+                        Toast.makeText(this, "状态已设为：补打标签", Toast.LENGTH_SHORT).show()
                         finish()
                     }
                     .show()
             }
         }
 
-        btnMismatch.setOnClickListener {
+
+btnMismatch.setOnClickListener {
             currentAsset?.let { asset ->
                 AssetEditActivity.start(this, taskId, asset.code)
             }
