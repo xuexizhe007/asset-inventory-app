@@ -22,6 +22,8 @@ import com.example.assetinventory.util.PdfGenerator
 
 class MainActivity : AppCompatActivity() {
 
+    private lateinit var btnBackTaskList: Button
+    private lateinit var btnBack: Button
     private lateinit var tvTaskName: TextView
     private lateinit var etSearch: EditText
     private lateinit var btnFilterStatus: Button
@@ -29,8 +31,13 @@ class MainActivity : AppCompatActivity() {
     private lateinit var btnInventory: Button
     private lateinit var btnPrint: Button
 
-    private lateinit var adapter: AssetAdapter
+    private lateinit var tvSummaryTotal: TextView
+    private lateinit var tvSummaryMatched: TextView
+    private lateinit var tvSummaryReprint: TextView
+    private lateinit var tvSummaryMismatch: TextView
+    private lateinit var tvSummaryUnchecked: TextView
 
+    private lateinit var adapter: AssetAdapter
     private val selectedStatuses: MutableSet<AssetStatus> = mutableSetOf()
     private var allAssets: MutableList<Asset> = mutableListOf()
 
@@ -52,6 +59,8 @@ class MainActivity : AppCompatActivity() {
 
         supportActionBar?.title = taskName
 
+        btnBackTaskList = findViewById(R.id.btnBackTaskList)
+        btnBack = findViewById(R.id.btnBack)
         tvTaskName = findViewById(R.id.tvTaskName)
         etSearch = findViewById(R.id.etSearch)
         btnFilterStatus = findViewById(R.id.btnFilterStatus)
@@ -59,7 +68,23 @@ class MainActivity : AppCompatActivity() {
         btnInventory = findViewById(R.id.btnInventory)
         btnPrint = findViewById(R.id.btnPrint)
 
+        tvSummaryTotal = findViewById(R.id.tvSummaryTotal)
+        tvSummaryMatched = findViewById(R.id.tvSummaryMatched)
+        tvSummaryReprint = findViewById(R.id.tvSummaryReprint)
+        tvSummaryMismatch = findViewById(R.id.tvSummaryMismatch)
+        tvSummaryUnchecked = findViewById(R.id.tvSummaryUnchecked)
+
         tvTaskName.text = "当前任务：$taskName"
+
+        btnBackTaskList.setOnClickListener {
+            val intent = Intent(this, TaskListActivity::class.java)
+            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
+            startActivity(intent)
+        }
+
+        btnBack.setOnClickListener {
+            finish()
+        }
 
         adapter = AssetAdapter(emptyList()) { asset ->
             val intent = Intent(this, AssetDetailActivity::class.java)
@@ -104,13 +129,27 @@ class MainActivity : AppCompatActivity() {
 
     override fun onResume() {
         super.onResume()
-        // 从数据库重新加载，保证状态更新
         loadAssets()
     }
 
     private fun loadAssets() {
         allAssets = LocalStore.getAssetsForTask(this, taskId).toMutableList()
+        updateSummary()
         applyFilter()
+    }
+
+    private fun updateSummary() {
+        val total = allAssets.size
+        val matched = allAssets.count { it.status == AssetStatus.MATCHED }
+        val reprint = allAssets.count { it.status == AssetStatus.LABEL_REPRINT }
+        val mismatch = allAssets.count { it.status == AssetStatus.MISMATCH }
+        val unchecked = allAssets.count { it.status == AssetStatus.UNCHECKED }
+
+        tvSummaryTotal.text = "总资产：$total"
+        tvSummaryMatched.text = "相符：$matched"
+        tvSummaryReprint.text = "补打标签：$reprint"
+        tvSummaryMismatch.text = "不相符：$mismatch"
+        tvSummaryUnchecked.text = "未盘点：$unchecked"
     }
 
     private fun applyFilter() {

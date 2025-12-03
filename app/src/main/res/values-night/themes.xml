@@ -6,7 +6,7 @@
         <item name="colorSecondary">@color/color_secondary</item>
         <item name="colorSecondaryVariant">@color/color_secondary_dark</item>
         <item name="colorOnSecondary">@color/white</item>
-        <item name="android:navigationBarColor">@color/color_primary_dark</item>
         <item name="android:statusBarColor">@color/color_primary_dark</item>
+        <item name="android:navigationBarColor">@color/color_primary_dark</item>
     </style>
 </resources>

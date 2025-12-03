@@ -1,1 +1,1 @@
-# Keep default settings; no special rules required for this sample.
+# No special rules required for this sample

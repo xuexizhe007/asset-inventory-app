@@ -1,6 +1,8 @@
 package com.example.assetinventory.ui
 
+import android.content.Intent
 import android.os.Bundle
+import android.widget.Button
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.example.assetinventory.R
@@ -11,9 +13,11 @@ import com.journeyapps.barcodescanner.DecoratedBarcodeView
 
 class QrScanActivity : AppCompatActivity() {
 
+    private lateinit var btnBackTaskList: Button
+    private lateinit var btnBack: Button
     private lateinit var barcodeView: DecoratedBarcodeView
-    private var handled = false
 
+    private var handled = false
     private var taskId: Long = -1L
     private var taskName: String = ""
 
@@ -28,7 +32,7 @@ class QrScanActivity : AppCompatActivity() {
                 Toast.makeText(this@QrScanActivity, "未找到资产编码：$code", Toast.LENGTH_LONG).show()
                 finish()
             } else {
-                val intent = android.content.Intent(this@QrScanActivity, AssetDetailActivity::class.java)
+                val intent = Intent(this@QrScanActivity, AssetDetailActivity::class.java)
                 intent.putExtra(AssetDetailActivity.EXTRA_TASK_ID, taskId)
                 intent.putExtra(AssetDetailActivity.EXTRA_ASSET_CODE, asset.code)
                 startActivity(intent)
@@ -54,7 +58,21 @@ class QrScanActivity : AppCompatActivity() {
 
         supportActionBar?.title = "扫码盘点 - $taskName"
 
+        btnBackTaskList = findViewById(R.id.btnBackTaskList)
+        btnBack = findViewById(R.id.btnBack)
         barcodeView = findViewById(R.id.barcodeScanner)
+
+        btnBackTaskList.setOnClickListener {
+            val intent = Intent(this, TaskListActivity::class.java)
+            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
+            startActivity(intent)
+            finish()
+        }
+
+        btnBack.setOnClickListener {
+            finish()
+        }
+
         barcodeView.decodeContinuous(callback)
     }
 

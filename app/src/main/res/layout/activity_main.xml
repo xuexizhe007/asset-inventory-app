@@ -6,13 +6,75 @@
     android:orientation="vertical"
     android:padding="12dp">
 
+    <LinearLayout
+        android:id="@+id/layoutTopBar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <Button
+            android:id="@+id/btnBackTaskList"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:minHeight="40dp"
+            android:text="任务列表" />
+
+        <Button
+            android:id="@+id/btnBack"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:minHeight="40dp"
+            android:layout_marginStart="8dp"
+            android:text="返回" />
+    </LinearLayout>
+
     <TextView
         android:id="@+id/tvTaskName"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
         android:text="当前任务："
         android:textSize="16sp"
         android:textStyle="bold" />
+
+    <!-- 统计信息 -->
+    <LinearLayout
+        android:id="@+id/layoutSummary"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/tvSummaryTotal"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="总资产：0" />
+
+        <TextView
+            android:id="@+id/tvSummaryMatched"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="相符：0" />
+
+        <TextView
+            android:id="@+id/tvSummaryReprint"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="补打标签：0" />
+
+        <TextView
+            android:id="@+id/tvSummaryMismatch"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="不相符：0" />
+
+        <TextView
+            android:id="@+id/tvSummaryUnchecked"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="未盘点：0" />
+    </LinearLayout>
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -34,8 +96,6 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:minHeight="48dp"
-            android:paddingTop="10dp"
-            android:paddingBottom="10dp"
             android:layout_marginStart="8dp"
             android:text="@string/filter_status" />
     </LinearLayout>

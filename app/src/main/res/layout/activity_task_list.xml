@@ -6,11 +6,34 @@
     android:orientation="vertical"
     android:padding="12dp">
 
+    <LinearLayout
+        android:id="@+id/layoutTopBar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <Button
+            android:id="@+id/btnBackTaskList"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:minHeight="40dp"
+            android:text="任务列表" />
+
+        <Button
+            android:id="@+id/btnBack"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:minHeight="40dp"
+            android:layout_marginStart="8dp"
+            android:text="返回" />
+    </LinearLayout>
+
     <Button
         android:id="@+id/btnImportTask"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:minHeight="56dp"
+        android:layout_marginTop="8dp"
         android:paddingTop="12dp"
         android:paddingBottom="12dp"
         android:text="导入盘点任务（xls / xlsx）" />

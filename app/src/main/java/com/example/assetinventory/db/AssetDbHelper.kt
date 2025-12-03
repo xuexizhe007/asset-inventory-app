@@ -10,7 +10,6 @@ class AssetDbHelper(context: Context) : SQLiteOpenHelper(
     null,
     DATABASE_VERSION
 ) {
-
     override fun onCreate(db: SQLiteDatabase) {
         db.execSQL(
             """CREATE TABLE tasks (
@@ -38,7 +37,6 @@ class AssetDbHelper(context: Context) : SQLiteOpenHelper(
     }
 
     override fun onUpgrade(db: SQLiteDatabase, oldVersion: Int, newVersion: Int) {
-        // 简单处理：升级时清空重建
         db.execSQL("DROP TABLE IF EXISTS assets")
         db.execSQL("DROP TABLE IF EXISTS tasks")
         onCreate(db)

@@ -1,6 +1,7 @@
 package com.example.assetinventory.ui
 
 import android.content.DialogInterface
+import android.content.Intent
 import android.os.Bundle
 import android.widget.Button
 import android.widget.TextView
@@ -14,6 +15,8 @@ import com.example.assetinventory.model.AssetStatus
 
 class AssetDetailActivity : AppCompatActivity() {
 
+    private lateinit var btnBackTaskList: Button
+    private lateinit var btnBack: Button
     private lateinit var tvCode: TextView
     private lateinit var tvName: TextView
     private lateinit var tvUser: TextView
@@ -43,6 +46,8 @@ class AssetDetailActivity : AppCompatActivity() {
             return
         }
 
+        btnBackTaskList = findViewById(R.id.btnBackTaskList)
+        btnBack = findViewById(R.id.btnBack)
         tvCode = findViewById(R.id.tvCode)
         tvName = findViewById(R.id.tvName)
         tvUser = findViewById(R.id.tvUser)
@@ -52,6 +57,16 @@ class AssetDetailActivity : AppCompatActivity() {
         tvStatus = findViewById(R.id.tvStatus)
         btnMatched = findViewById(R.id.btnMatched)
         btnMismatch = findViewById(R.id.btnMismatch)
+
+        btnBackTaskList.setOnClickListener {
+            val intent = Intent(this, TaskListActivity::class.java)
+            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
+            startActivity(intent)
+        }
+
+        btnBack.setOnClickListener {
+            finish()
+        }
 
         btnMatched.setOnClickListener {
             currentAsset?.let { asset ->
@@ -81,7 +96,6 @@ class AssetDetailActivity : AppCompatActivity() {
 
     override fun onResume() {
         super.onResume()
-        // 重新从数据库读取最新状态
         assetCode?.let {
             val asset = LocalStore.findAssetByCode(this, taskId, it)
             if (asset == null) {
@@ -91,7 +105,7 @@ class AssetDetailActivity : AppCompatActivity() {
             }
             currentAsset = asset
 
-            // 如果状态为不相符，说明在编辑页已确认修改，直接返回资产列表
+            // 如果状态已经为不相符，说明编辑已完成，直接返回资产列表
             if (asset.status == AssetStatus.MISMATCH) {
                 finish()
                 return

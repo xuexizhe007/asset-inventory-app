@@ -15,6 +15,8 @@ import com.example.assetinventory.model.AssetStatus
 
 class AssetEditActivity : AppCompatActivity() {
 
+    private lateinit var btnBackTaskList: Button
+    private lateinit var btnBack: Button
     private lateinit var tvCode: TextView
     private lateinit var tvName: TextView
     private lateinit var tvStartDate: TextView
@@ -43,6 +45,8 @@ class AssetEditActivity : AppCompatActivity() {
             return
         }
 
+        btnBackTaskList = findViewById(R.id.btnBackTaskList)
+        btnBack = findViewById(R.id.btnBack)
         tvCode = findViewById(R.id.tvCode)
         tvName = findViewById(R.id.tvName)
         tvStartDate = findViewById(R.id.tvStartDate)
@@ -51,6 +55,16 @@ class AssetEditActivity : AppCompatActivity() {
         etLocation = findViewById(R.id.etLocation)
         btnCancel = findViewById(R.id.btnCancel)
         btnConfirm = findViewById(R.id.btnConfirm)
+
+        btnBackTaskList.setOnClickListener {
+            val intent = Intent(this, TaskListActivity::class.java)
+            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
+            startActivity(intent)
+        }
+
+        btnBack.setOnClickListener {
+            finish()
+        }
 
         loadAsset()
 

@@ -17,6 +17,8 @@ import com.example.assetinventory.util.ExcelImporter
 
 class TaskListActivity : AppCompatActivity() {
 
+    private lateinit var btnBackTaskList: Button
+    private lateinit var btnBack: Button
     private lateinit var btnImportTask: Button
     private lateinit var rvTasks: RecyclerView
     private lateinit var adapter: TaskAdapter
@@ -37,16 +39,27 @@ class TaskListActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_task_list)
 
-        supportActionBar?.title = getString(R.string.task_list_title)
-
+        btnBackTaskList = findViewById(R.id.btnBackTaskList)
+        btnBack = findViewById(R.id.btnBack)
         btnImportTask = findViewById(R.id.btnImportTask)
         rvTasks = findViewById(R.id.rvTasks)
+
+        supportActionBar?.title = getString(R.string.task_list_title)
 
         adapter = TaskAdapter(emptyList()) { task ->
             openTask(task)
         }
         rvTasks.layoutManager = LinearLayoutManager(this)
         rvTasks.adapter = adapter
+
+        btnBackTaskList.setOnClickListener {
+            // 已经在任务列表，可提示一下
+            Toast.makeText(this, "已在任务列表页面", Toast.LENGTH_SHORT).show()
+        }
+
+        btnBack.setOnClickListener {
+            finish()
+        }
 
         btnImportTask.setOnClickListener {
             openExcelPicker()
