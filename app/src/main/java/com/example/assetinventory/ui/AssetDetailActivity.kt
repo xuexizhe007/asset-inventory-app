@@ -132,12 +132,7 @@ btnMismatch.setOnClickListener {
 
         AlertDialog.Builder(this)
             .setMessage(spannable)
-            .setPositiveButton("确定") { _, _ ->
-                // 如果是不相符状态，提示后返回资产列表
-                if (asset.status == AssetStatus.MISMATCH) {
-                    finish()
-                }
-            }
+            .setPositiveButton("确定", null)
             .show()
     }
 
@@ -150,13 +145,13 @@ btnMismatch.setOnClickListener {
         }
 
     private fun render(asset: Asset) {
-        tvCode.text = "资产编码：${asset.code}"
-        tvName.text = "资产名称：${asset.name}"
-        tvUser.text = "使用人：${asset.user.orEmpty()}"
-        tvDept.text = "使用部门：${asset.department.orEmpty()}"
-        tvLocation.text = "存放地点：${asset.location.orEmpty()}"
-        tvStartDate.text = "投用日期：${asset.startDate}"
-        tvStatus.text = "当前状态：${asset.status.displayName}"
+        tvCode.text = asset.code
+        tvName.text = asset.name
+        tvUser.text = asset.user.orEmpty()
+        tvDept.text = asset.department.orEmpty()
+        tvLocation.text = asset.location.orEmpty()
+        tvStartDate.text = asset.startDate
+        tvStatus.text = asset.status.displayName
     }
 
     companion object {

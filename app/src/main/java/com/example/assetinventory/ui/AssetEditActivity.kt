@@ -8,6 +8,7 @@ import android.widget.EditText
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import com.example.assetinventory.ui.MainActivity
 import com.example.assetinventory.R
 import com.example.assetinventory.data.LocalStore
 import com.example.assetinventory.model.Asset
@@ -88,6 +89,14 @@ class AssetEditActivity : AppCompatActivity() {
             )
 
             Toast.makeText(this, "修改已保存，状态已设为：不相符", Toast.LENGTH_SHORT).show()
+
+            // 修改完成后返回资产列表页
+            val intent = Intent(this, MainActivity::class.java)
+            intent.putExtra(MainActivity.EXTRA_TASK_ID, taskId)
+            intent.putExtra(MainActivity.EXTRA_TASK_NAME, "")
+            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
+            startActivity(intent)
+
             finish()
         }
     }

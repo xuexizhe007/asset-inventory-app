@@ -13,14 +13,4 @@
     <color name="status_matched">#81C784</color>     <!-- 淡绿 -->
     <color name="status_mismatch">#FF8A65</color>   <!-- 橙红 -->
     <color name="status_reprint">#FFD54F</color>    <!-- 亮黄 -->
-
-    <!-- 通用背景与文字颜色 -->
-    <color name="bg_screen">#FAFAFA</color>
-    <color name="bg_card">#FFFFFF</color>
-    <color name="list_bg">#FAFAFA</color>
-    <color name="text_primary">#212121</color>
-    <color name="text_secondary">#666666</color>
-    <color name="divider">#E0E0E0</color>
-    <color name="topbar_bg">#F5F5F5</color>
-
 </resources>

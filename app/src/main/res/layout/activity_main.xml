@@ -4,31 +4,26 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:padding="16dp"
-    android:background="@color/bg_screen">
+    android:padding="12dp">
 
     <LinearLayout
         android:id="@+id/layoutTopBar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:gravity="center_vertical"
-        android:paddingHorizontal="12dp"
-        android:paddingVertical="8dp"
-        android:background="@color/topbar_bg">
+        android:orientation="horizontal">
 
         <Button
             android:id="@+id/btnBackTaskList"
-            style="@style/TopBarButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:minHeight="40dp"
             android:text="任务列表" />
 
         <Button
             android:id="@+id/btnBack"
-            style="@style/TopBarButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:minHeight="40dp"
             android:layout_marginStart="8dp"
             android:text="返回" />
     </LinearLayout>
@@ -48,56 +43,38 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
-        android:orientation="horizontal"
-        android:background="@drawable/bg_summary_bar"
-        android:padding="8dp">
+        android:orientation="vertical">
 
         <TextView
             android:id="@+id/tvSummaryTotal"
-            android:layout_width="0dp"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:gravity="center"
-            android:text="总资产：0"
-            android:textSize="12sp" />
+            android:text="总资产：0" />
 
         <TextView
             android:id="@+id/tvSummaryMatched"
-            android:layout_width="0dp"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:gravity="center"
-            android:text="相符：0"
-            android:textSize="12sp" />
+            android:text="相符：0" />
 
         <TextView
             android:id="@+id/tvSummaryReprint"
-            android:layout_width="0dp"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:gravity="center"
-            android:text="补打标签：0"
-            android:textSize="12sp" />
+            android:text="补打标签：0" />
 
         <TextView
             android:id="@+id/tvSummaryMismatch"
-            android:layout_width="0dp"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:gravity="center"
-            android:text="不相符：0"
-            android:textSize="12sp" />
+            android:text="不相符：0" />
 
         <TextView
             android:id="@+id/tvSummaryUnchecked"
-            android:layout_width="0dp"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:gravity="center"
-            android:text="未盘点：0"
-            android:textSize="12sp" />
+            android:text="未盘点：0" />
     </LinearLayout>
-
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -143,12 +120,9 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:minHeight="56dp"
-            android:layout_weight="1"
             android:paddingTop="12dp"
             android:paddingBottom="12dp"
-            android:background="@drawable/bg_primary_button"
-            android:textColor="@color/white"
-            android:textSize="14sp"
+            android:layout_weight="1"
             android:text="@string/btn_inventory" />
 
         <Button
@@ -156,13 +130,10 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:minHeight="56dp"
-            android:layout_marginStart="8dp"
-            android:layout_weight="1"
             android:paddingTop="12dp"
             android:paddingBottom="12dp"
-            android:background="@drawable/bg_primary_button"
-            android:textColor="@color/white"
-            android:textSize="14sp"
+            android:layout_marginStart="8dp"
+            android:layout_weight="1"
             android:text="@string/btn_print" />
     </LinearLayout>
 
