@@ -1,30 +1,17 @@
 <resources>
     <string name="app_name">资产盘点</string>
 
-    <!-- 任务相关 -->
     <string name="task_list_title">盘点任务列表</string>
-    <string name="task_import">导入盘点任务（xls / xlsx）</string>
-    <string name="task_empty">暂无盘点任务，请先导入 Excel 表格创建任务。</string>
-    <string name="task_created_at">创建时间：%1$s</string>
-    <string name="task_asset_count">资产数量：%1$d</string>
+    <string name="btn_import_task">导入盘点任务（xls/xlsx）</string>
+    <string name="no_task_tip">暂无盘点任务，请点击上方按钮导入</string>
 
-    <!-- 资产列表相关 -->
-    <string name="back_to_task_list">返回任务列表</string>
-    <string name="current_task">当前任务：%1$s（共 %2$d 条资产）</string>
-    <string name="no_current_task">当前任务：暂无</string>
-
-    <string name="search_hint">搜索资产编码 / 名称 / 存放地点</string>
+    <string name="asset_search_hint">搜索资产编码 / 名称 / 存放地点</string>
     <string name="filter_status">筛选盘点状态</string>
     <string name="btn_inventory">资产盘点</string>
     <string name="btn_print">打印标签</string>
 
-    <!-- 状态显示 -->
     <string name="status_unchecked">未盘点</string>
     <string name="status_matched">相符</string>
     <string name="status_mismatch">不相符</string>
     <string name="status_reprint">补打标签</string>
-
-    <!-- 通用 -->
-    <string name="dialog_ok">确定</string>
-    <string name="dialog_cancel">取消</string>
 </resources>

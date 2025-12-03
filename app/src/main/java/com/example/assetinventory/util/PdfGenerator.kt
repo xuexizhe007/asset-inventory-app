@@ -14,13 +14,7 @@ import java.io.ByteArrayOutputStream
 
 object PdfGenerator {
 
-    /**
-     * 生成资产标签 PDF：
-     * - 每页对应 1 个资产
-     * - 尺寸 7cm x 4cm
-     * - 左侧 3/4 为文字，右侧 1/4 为二维码（内容为资产编码）
-     */
-    fun generateLabelsPdf(context: Context, taskName: String?, assets: List<Asset>) {
+    fun generateLabelsPdf(context: Context, taskName: String, assets: List<Asset>) {
         if (assets.isEmpty()) {
             Toast.makeText(context, "请选择需要打印的资产", Toast.LENGTH_SHORT).show()
             return
@@ -28,7 +22,6 @@ object PdfGenerator {
 
         val pdfDocument = android.graphics.pdf.PdfDocument()
 
-        // 7cm x 4cm -> point（1 inch = 2.54cm, 1 inch = 72pt）
         val widthPoints = (7f / 2.54f * 72f).toInt()
         val heightPoints = (4f / 2.54f * 72f).toInt()
 
@@ -38,68 +31,67 @@ object PdfGenerator {
             isAntiAlias = true
         }
 
-        val title = taskName ?: "资产标签"
-
         assets.forEachIndexed { index, asset ->
             val pageInfo = android.graphics.pdf.PdfDocument.PageInfo.Builder(
                 widthPoints,
                 heightPoints,
                 index + 1
             ).create()
-
             val page = pdfDocument.startPage(pageInfo)
             val canvas = page.canvas
 
             val padding = 8f
             val textAreaWidth = widthPoints * 0.75f
             val qrAreaWidth = widthPoints - textAreaWidth
-
             val qrSize = (qrAreaWidth - padding * 2).toInt()
 
             var y = padding + 10f
-
-            fun drawTextLine(label: String, value: String) {
+            fun drawLine(label: String, value: String) {
                 canvas.drawText("$label：$value", padding, y, textPaint)
                 y += 14f
             }
 
-            // 第一、二行：资产编码、资产名称
-            drawTextLine("资产编码", asset.code)
-            drawTextLine("资产名称", asset.name)
+            drawLine("资产编码", asset.code)
+            drawLine("资产名称", asset.name)
+            drawLine("使用人", asset.user.orEmpty())
+            drawLine("使用部门", asset.department.orEmpty())
+            drawLine("存放地点", asset.location.orEmpty())
+            drawLine("投用日期", asset.startDate)
 
-            // 第三到第六行：使用人、使用部门、存放地点、投用日期
-            drawTextLine("使用人", asset.user.orEmpty())
-            drawTextLine("使用部门", asset.department.orEmpty())
-            drawTextLine("存放地点", asset.location.orEmpty())
-            drawTextLine("投用日期", asset.startDate)
-
-            // 右侧二维码
             try {
                 val qrBitmap = createQrBitmap(asset.code, qrSize)
                 val left = textAreaWidth + padding
                 val top = padding
-                canvas.drawBitmap(qrBitmap, null, RectF(left, top, left + qrSize, top + qrSize), null)
-            } catch (e: Exception) {
-                // ignore QR failure, still output text
+                canvas.drawBitmap(
+                    qrBitmap,
+                    null,
+                    RectF(left, top, left + qrSize, top + qrSize),
+                    null
+                )
+            } catch (_: Exception) {
             }
 
             pdfDocument.finishPage(page)
         }
 
-        // 写入到 Downloads
+        val title = taskName.ifEmpty { "资产标签" }
         val fileName = "${title}_${System.currentTimeMillis()}.pdf"
-        val resolver = context.contentResolver
+
         val outputStream = ByteArrayOutputStream()
         pdfDocument.writeTo(outputStream)
         pdfDocument.close()
         val pdfBytes = outputStream.toByteArray()
 
         try {
+            val resolver = context.contentResolver
             val uri = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
                 val contentValues = ContentValues().apply {
                     put(MediaStore.MediaColumns.DISPLAY_NAME, fileName)
                     put(MediaStore.MediaColumns.MIME_TYPE, "application/pdf")
-                    put(MediaStore.MediaColumns.RELATIVE_PATH, Environment.DIRECTORY_DOWNLOADS + "/AssetLabels")
+                    put(
+                        MediaStore.MediaColumns.RELATIVE_PATH,
+                        Environment.DIRECTORY_DOWNLOADS + "/AssetLabels"
+                    )
                 }
                 resolver.insert(MediaStore.Downloads.EXTERNAL_CONTENT_URI, contentValues)
             } else {
@@ -120,10 +112,18 @@ object PdfGenerator {
                 os.flush()
             }
 
-            Toast.makeText(context, "PDF 已保存到下载目录，可复制到电脑使用斑马打印机打印。", Toast.LENGTH_LONG).show()
+            Toast.makeText(
+                context,
+                "PDF 已保存到下载目录，可复制到电脑使用斑马打印机打印。",
+                Toast.LENGTH_LONG
+            ).show()
         } catch (e: Exception) {
             e.printStackTrace()
-            Toast.makeText(context, "保存 PDF 时出错：${e.message}", Toast.LENGTH_LONG).show()
+            Toast.makeText(
+                context,
+                "保存 PDF 时出错：" + (e.message ?: ""),
+                Toast.LENGTH_LONG
+            ).show()
         }
     }
 

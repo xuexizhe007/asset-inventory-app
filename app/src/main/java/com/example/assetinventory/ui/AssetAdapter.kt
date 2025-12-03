@@ -14,8 +14,7 @@ import com.example.assetinventory.model.AssetStatus
 
 class AssetAdapter(
     private var items: List<Asset>,
-    private val onItemClick: (Asset) -> Unit,
-    private val onAssetUpdated: (Asset) -> Unit
+    private val onItemClick: (Asset) -> Unit
 ) : RecyclerView.Adapter<AssetAdapter.AssetViewHolder>() {
 
     fun update(newItems: List<Asset>) {
@@ -27,9 +26,8 @@ class AssetAdapter(
         get() = items
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): AssetViewHolder {
-        val view = LayoutInflater.from(parent.context)
-            .inflate(R.layout.item_asset, parent, false)
-        return AssetViewHolder(view)
+        val v = LayoutInflater.from(parent.context).inflate(R.layout.item_asset, parent, false)
+        return AssetViewHolder(v)
     }
 
     override fun onBindViewHolder(holder: AssetViewHolder, position: Int) {
@@ -38,14 +36,14 @@ class AssetAdapter(
 
     override fun getItemCount(): Int = items.size
 
-    inner class AssetViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-        private val cbSelect: CheckBox = itemView.findViewById(R.id.cbSelect)
-        private val tvCode: TextView = itemView.findViewById(R.id.tvCode)
-        private val tvName: TextView = itemView.findViewById(R.id.tvName)
-        private val tvUserDept: TextView = itemView.findViewById(R.id.tvUserDept)
-        private val tvLocation: TextView = itemView.findViewById(R.id.tvLocation)
-        private val tvStartDate: TextView = itemView.findViewById(R.id.tvStartDate)
-        private val tvStatus: TextView = itemView.findViewById(R.id.tvStatus)
+    inner class AssetViewHolder(view: View) : RecyclerView.ViewHolder(view) {
+        private val cbSelect: CheckBox = view.findViewById(R.id.cbSelect)
+        private val tvCode: TextView = view.findViewById(R.id.tvCode)
+        private val tvName: TextView = view.findViewById(R.id.tvName)
+        private val tvUserDept: TextView = view.findViewById(R.id.tvUserDept)
+        private val tvLocation: TextView = view.findViewById(R.id.tvLocation)
+        private val tvStartDate: TextView = view.findViewById(R.id.tvStartDate)
+        private val tvStatus: TextView = view.findViewById(R.id.tvStatus)
 
         fun bind(asset: Asset) {
             tvCode.text = "资产编码：${asset.code}"
@@ -56,11 +54,15 @@ class AssetAdapter(
             tvStatus.text = asset.status.displayName
 
             val context = itemView.context
-            val colorRes = asset.status.colorResId
-            val bgColor = ContextCompat.getColor(context, colorRes)
+            val colorRes = when (asset.status) {
+                AssetStatus.UNCHECKED -> R.color.status_unchecked
+                AssetStatus.MATCHED -> R.color.status_matched
+                AssetStatus.MISMATCH -> R.color.status_mismatch
+                AssetStatus.LABEL_REPRINT -> R.color.status_reprint
+            }
             val drawable = GradientDrawable().apply {
-                cornerRadius = 16f
-                setColor(bgColor)
+                cornerRadius = 8f
+                setColor(ContextCompat.getColor(context, colorRes))
             }
             tvStatus.background = drawable
 
@@ -68,12 +70,9 @@ class AssetAdapter(
             cbSelect.isChecked = asset.selectedForPrint
             cbSelect.setOnCheckedChangeListener { _, isChecked ->
                 asset.selectedForPrint = isChecked
-                onAssetUpdated(asset)
             }
 
-            itemView.setOnClickListener {
-                onItemClick(asset)
-            }
+            itemView.setOnClickListener { onItemClick(asset) }
         }
     }
 }

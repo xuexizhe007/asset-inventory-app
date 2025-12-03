@@ -2,7 +2,8 @@
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:padding="12dp">
+    android:background="@color/background"
+    android:padding="16dp">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -13,68 +14,69 @@
             android:id="@+id/tvCode"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="资产编码"
-            android:textColor="@color/text_primary" />
+            android:text="资产编码" />
 
         <TextView
             android:id="@+id/tvName"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="资产名称"
-            android:textColor="@color/text_primary" />
-
-        <EditText
-            android:id="@+id/etUser"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:hint="使用人"
-            android:backgroundTint="@color/mint_primary" />
-
-        <EditText
-            android:id="@+id/etDept"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:hint="使用部门"
-            android:backgroundTint="@color/mint_primary" />
-
-        <EditText
-            android:id="@+id/etLocation"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:hint="存放地点"
-            android:backgroundTint="@color/mint_primary" />
+            android:layout_marginTop="4dp"
+            android:text="资产名称" />
 
         <TextView
             android:id="@+id/tvStartDate"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:text="投用日期" />
+
+        <EditText
+            android:id="@+id/etUser"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
-            android:text="投用日期"
-            android:textColor="@color/text_secondary" />
+            android:background="@drawable/bg_edittext"
+            android:hint="使用人" />
+
+        <EditText
+            android:id="@+id/etDept"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:background="@drawable/bg_edittext"
+            android:hint="使用部门" />
+
+        <EditText
+            android:id="@+id/etLocation"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:background="@drawable/bg_edittext"
+            android:hint="存放地点" />
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
+            android:layout_marginTop="20dp"
             android:gravity="center"
             android:orientation="horizontal">
 
             <Button
                 android:id="@+id/btnCancel"
-                style="@style/Widget.AssetInventory.Button"
                 android:layout_width="0dp"
-                android:layout_height="wrap_content"
+                android:layout_height="52dp"
                 android:layout_weight="1"
                 android:text="放弃修改" />
 
             <Button
                 android:id="@+id/btnConfirm"
-                style="@style/Widget.AssetInventory.Button"
                 android:layout_width="0dp"
-                android:layout_height="wrap_content"
+                android:layout_height="52dp"
                 android:layout_marginStart="8dp"
                 android:layout_weight="1"
-                android:text="确认修改" />
+                android:backgroundTint="@color/primary"
+                android:text="确认修改"
+                android:textColor="@color/white" />
         </LinearLayout>
 
     </LinearLayout>

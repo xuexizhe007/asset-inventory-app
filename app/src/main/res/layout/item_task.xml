@@ -3,14 +3,14 @@
     xmlns:card_view="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_margin="6dp"
-    card_view:cardCornerRadius="12dp"
-    card_view:cardUseCompatPadding="true"
-    card_view:cardElevation="3dp">
+    android:layout_marginVertical="6dp"
+    card_view:cardCornerRadius="10dp"
+    card_view:cardElevation="2dp">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:background="@color/white"
         android:orientation="vertical"
         android:padding="12dp">
 
@@ -19,27 +19,27 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="任务名称"
-            android:textColor="@color/text_primary"
+            android:textColor="@color/textPrimary"
             android:textSize="16sp"
             android:textStyle="bold" />
 
         <TextView
-            android:id="@+id/tvCreatedAt"
+            android:id="@+id/tvTaskInfo"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="4dp"
-            android:text="创建时间"
-            android:textColor="@color/text_secondary"
+            android:text="共 0 条资产"
+            android:textColor="@color/textSecondary"
             android:textSize="13sp" />
 
         <TextView
-            android:id="@+id/tvAssetCount"
+            android:id="@+id/tvTaskCreatedAt"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="2dp"
-            android:text="资产数量"
-            android:textColor="@color/text_secondary"
-            android:textSize="13sp" />
+            android:text="创建时间：2025-01-01 12:00"
+            android:textColor="@color/textSecondary"
+            android:textSize="12sp" />
 
     </LinearLayout>
 

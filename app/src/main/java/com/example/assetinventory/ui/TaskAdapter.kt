@@ -12,7 +12,7 @@ import java.util.*
 
 class TaskAdapter(
     private var items: List<InventoryTask>,
-    private val onItemClick: (InventoryTask) -> Unit
+    private val onClick: (InventoryTask) -> Unit
 ) : RecyclerView.Adapter<TaskAdapter.TaskViewHolder>() {
 
     private val sdf = SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.getDefault())
@@ -23,9 +23,9 @@ class TaskAdapter(
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): TaskViewHolder {
-        val view = LayoutInflater.from(parent.context)
+        val v = LayoutInflater.from(parent.context)
             .inflate(R.layout.item_task, parent, false)
-        return TaskViewHolder(view)
+        return TaskViewHolder(v)
     }
 
     override fun onBindViewHolder(holder: TaskViewHolder, position: Int) {
@@ -34,20 +34,16 @@ class TaskAdapter(
 
     override fun getItemCount(): Int = items.size
 
-    inner class TaskViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-        private val tvTaskName: TextView = itemView.findViewById(R.id.tvTaskName)
-        private val tvCreatedAt: TextView = itemView.findViewById(R.id.tvCreatedAt)
-        private val tvAssetCount: TextView = itemView.findViewById(R.id.tvAssetCount)
+    inner class TaskViewHolder(view: View) : RecyclerView.ViewHolder(view) {
+        private val tvName: TextView = view.findViewById(R.id.tvTaskName)
+        private val tvInfo: TextView = view.findViewById(R.id.tvTaskInfo)
+        private val tvCreated: TextView = view.findViewById(R.id.tvTaskCreatedAt)
 
         fun bind(task: InventoryTask) {
-            tvTaskName.text = task.name
-            val context = itemView.context
-            tvCreatedAt.text = context.getString(R.string.task_created_at, sdf.format(Date(task.createdAt)))
-            tvAssetCount.text = context.getString(R.string.task_asset_count, task.assets.size)
-
-            itemView.setOnClickListener {
-                onItemClick(task)
-            }
+            tvName.text = task.name
+            tvInfo.text = "共 ${task.assets.size} 条资产"
+            tvCreated.text = "创建时间：" + sdf.format(Date(task.createdAt))
+            itemView.setOnClickListener { onClick(task) }
         }
     }
 }

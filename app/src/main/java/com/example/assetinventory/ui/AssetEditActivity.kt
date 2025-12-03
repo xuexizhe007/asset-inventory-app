@@ -9,10 +9,14 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.example.assetinventory.R
-import com.example.assetinventory.data.AssetRepository
+import com.example.assetinventory.data.TaskRepository
+import com.example.assetinventory.model.Asset
 import com.example.assetinventory.model.AssetStatus
 
 class AssetEditActivity : AppCompatActivity() {
+
+    private var taskId: Long = -1
+    private var assetCode: String? = null
 
     private lateinit var tvCode: TextView
     private lateinit var tvName: TextView
@@ -23,14 +27,14 @@ class AssetEditActivity : AppCompatActivity() {
     private lateinit var btnCancel: Button
     private lateinit var btnConfirm: Button
 
-    private var assetCode: String? = null
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        AssetRepository.init(this)
         setContentView(R.layout.activity_asset_edit)
 
         supportActionBar?.title = "修改资产信息"
+
+        taskId = intent.getLongExtra(EXTRA_TASK_ID, -1)
+        assetCode = intent.getStringExtra(EXTRA_ASSET_CODE)
 
         tvCode = findViewById(R.id.tvCode)
         tvName = findViewById(R.id.tvName)
@@ -41,11 +45,9 @@ class AssetEditActivity : AppCompatActivity() {
         btnCancel = findViewById(R.id.btnCancel)
         btnConfirm = findViewById(R.id.btnConfirm)
 
-        assetCode = intent.getStringExtra(EXTRA_ASSET_CODE)
-        val asset = assetCode?.let { AssetRepository.findAssetInCurrentTask(this, it) }
-
+        val asset = getAsset()
         if (asset == null) {
-            Toast.makeText(this, "未找到资产信息", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, "未找到资产", Toast.LENGTH_SHORT).show()
             finish()
             return
         }
@@ -58,26 +60,38 @@ class AssetEditActivity : AppCompatActivity() {
         etLocation.setText(asset.location.orEmpty())
 
         btnCancel.setOnClickListener {
-            finish()
+            finish() // 放弃修改，返回资产列表
         }
 
         btnConfirm.setOnClickListener {
-            asset.user = etUser.text.toString().trim()
-            asset.department = etDept.text.toString().trim()
-            asset.location = etLocation.text.toString().trim()
-            asset.status = AssetStatus.MISMATCH
-
-            AssetRepository.onTaskChanged(this)
+            val a = getAsset()
+            if (a == null) {
+                Toast.makeText(this, "资产不存在", Toast.LENGTH_SHORT).show()
+                finish()
+                return@setOnClickListener
+            }
+            a.user = etUser.text.toString().trim()
+            a.department = etDept.text.toString().trim()
+            a.location = etLocation.text.toString().trim()
+            a.status = AssetStatus.MISMATCH
             Toast.makeText(this, "修改已保存，状态已设为：不相符", Toast.LENGTH_SHORT).show()
-            finish()
+            finish() // 返回资产列表
         }
     }
 
+    private fun getAsset(): Asset? {
+        val task = TaskRepository.getTask(taskId) ?: return null
+        val code = assetCode ?: return null
+        return task.assets.firstOrNull { it.code == code }
+    }
+
     companion object {
+        private const val EXTRA_TASK_ID = "extra_task_id"
         private const val EXTRA_ASSET_CODE = "extra_asset_code"
 
-        fun start(context: Context, assetCode: String) {
+        fun start(context: Context, taskId: Long, assetCode: String) {
             val intent = Intent(context, AssetEditActivity::class.java)
+            intent.putExtra(EXTRA_TASK_ID, taskId)
             intent.putExtra(EXTRA_ASSET_CODE, assetCode)
             context.startActivity(intent)
         }

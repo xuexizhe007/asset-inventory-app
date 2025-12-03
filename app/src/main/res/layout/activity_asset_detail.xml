@@ -2,7 +2,8 @@
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:padding="12dp">
+    android:background="@color/background"
+    android:padding="16dp">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -13,75 +14,75 @@
             android:id="@+id/tvCode"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="资产编码"
-            android:textColor="@color/text_primary" />
+            android:text="资产编码" />
 
         <TextView
             android:id="@+id/tvName"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="资产名称"
-            android:textColor="@color/text_primary" />
+            android:layout_marginTop="4dp"
+            android:text="资产名称" />
 
         <TextView
             android:id="@+id/tvUser"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="使用人"
-            android:textColor="@color/text_secondary" />
+            android:layout_marginTop="4dp"
+            android:text="使用人" />
 
         <TextView
             android:id="@+id/tvDept"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="使用部门"
-            android:textColor="@color/text_secondary" />
+            android:layout_marginTop="4dp"
+            android:text="使用部门" />
 
         <TextView
             android:id="@+id/tvLocation"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="存放地点"
-            android:textColor="@color/text_secondary" />
+            android:layout_marginTop="4dp"
+            android:text="存放地点" />
 
         <TextView
             android:id="@+id/tvStartDate"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="投用日期"
-            android:textColor="@color/text_secondary" />
+            android:layout_marginTop="4dp"
+            android:text="投用日期" />
 
         <TextView
             android:id="@+id/tvStatus"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
-            android:text="当前状态：未盘点"
-            android:textColor="@color/text_primary" />
+            android:text="当前状态：未盘点" />
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
+            android:layout_marginTop="20dp"
             android:gravity="center"
             android:orientation="horizontal">
 
             <Button
                 android:id="@+id/btnMatched"
-                style="@style/Widget.AssetInventory.Button"
                 android:layout_width="0dp"
-                android:layout_height="wrap_content"
+                android:layout_height="52dp"
                 android:layout_weight="1"
-                android:text="相符" />
+                android:backgroundTint="@color/primary"
+                android:text="相符"
+                android:textColor="@color/white" />
 
             <Button
                 android:id="@+id/btnMismatch"
-                style="@style/Widget.AssetInventory.Button"
                 android:layout_width="0dp"
-                android:layout_height="wrap_content"
+                android:layout_height="52dp"
                 android:layout_marginStart="8dp"
                 android:layout_weight="1"
-                android:text="不相符" />
+                android:backgroundTint="@color/accent"
+                android:text="不相符"
+                android:textColor="@color/white" />
         </LinearLayout>
 
     </LinearLayout>
