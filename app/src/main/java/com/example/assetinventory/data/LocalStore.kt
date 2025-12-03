@@ -65,7 +65,8 @@ object LocalStore {
         return list
     }
 
-    fun getAssetsForTask(context: Context, taskId: Long): List<Asset> {
+
+fun getAssetsForTask(context: Context, taskId: Long): List<Asset> {
         val db = helper(context).readableDatabase
         val list = mutableListOf<Asset>()
         val cursor = db.query(

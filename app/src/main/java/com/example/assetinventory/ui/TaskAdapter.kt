@@ -7,6 +7,7 @@ import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.example.assetinventory.R
 import com.example.assetinventory.data.TaskInfo
+
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -37,7 +38,6 @@ class TaskAdapter(
         private val tvTaskName: TextView = itemView.findViewById(R.id.tvTaskName)
         private val tvTaskInfo: TextView = itemView.findViewById(R.id.tvTaskInfo)
 
-        // 时间格式：yyyy-MM-dd HH:mm，可按需要调整
         private val sdf = SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.getDefault())
 
         fun bind(task: TaskInfo) {
