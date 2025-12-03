@@ -8,6 +8,10 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.assetinventory.R
 import com.example.assetinventory.data.TaskInfo
 
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
+
 class TaskAdapter(
     private var items: List<TaskInfo>,
     private val onItemClick: (TaskInfo) -> Unit
@@ -34,9 +38,12 @@ class TaskAdapter(
         private val tvTaskName: TextView = itemView.findViewById(R.id.tvTaskName)
         private val tvTaskInfo: TextView = itemView.findViewById(R.id.tvTaskInfo)
 
+        private val sdf = SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.getDefault())
+
         fun bind(task: TaskInfo) {
             tvTaskName.text = task.name
-            tvTaskInfo.text = "共 ${task.assetCount} 条资产"
+            val timeText = sdf.format(Date(task.createdAt))
+            tvTaskInfo.text = "导入时间：$timeText    共 ${task.assetCount} 条资产"
             itemView.setOnClickListener { onItemClick(task) }
         }
     }
