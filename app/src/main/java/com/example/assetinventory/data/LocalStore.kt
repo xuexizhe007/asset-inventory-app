@@ -46,7 +46,7 @@ object LocalStore {
     fun getTasks(context: Context): List<TaskInfo> {
         val db = helper(context).readableDatabase
         val list = mutableListOf<TaskInfo>()
-        val sql = """SELECT t.id, t.name, t.created_at, COUNT(a.id) AS asset_count
+        val sql = """SELECT t.id, t.name, COUNT(a.id) AS asset_count
                      FROM tasks t
                      LEFT JOIN assets a ON t.id = a.task_id
                      GROUP BY t.id
@@ -56,17 +56,15 @@ object LocalStore {
             while (it.moveToNext()) {
                 val id = it.getLong(0)
                 val name = it.getString(1) ?: ""
-                val createdAt = it.getLong(2)
-                val count = it.getInt(3)
-                list.add(TaskInfo(id, name, count, createdAt))
+                val count = it.getInt(2)
+                list.add(TaskInfo(id, name, count))
             }
         }
         db.close()
         return list
     }
 
-
-fun getAssetsForTask(context: Context, taskId: Long): List<Asset> {
+    fun getAssetsForTask(context: Context, taskId: Long): List<Asset> {
         val db = helper(context).readableDatabase
         val list = mutableListOf<Asset>()
         val cursor = db.query(

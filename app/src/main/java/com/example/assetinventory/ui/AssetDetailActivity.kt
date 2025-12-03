@@ -8,9 +8,6 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
-import android.text.SpannableString
-import android.text.Spanned
-import android.text.style.ForegroundColorSpan
 import com.example.assetinventory.R
 import com.example.assetinventory.data.LocalStore
 import com.example.assetinventory.model.Asset
@@ -76,12 +73,12 @@ class AssetDetailActivity : AppCompatActivity() {
                 AlertDialog.Builder(this)
                     .setTitle("确认相符")
                     .setMessage("是否需要补打资产标签？")
-                    .setNegativeButton("是") { _: DialogInterface, _: Int ->
+                    .setPositiveButton("是") { _: DialogInterface, _: Int ->
                         LocalStore.updateAssetStatus(this, taskId, asset.code, AssetStatus.LABEL_REPRINT)
                         Toast.makeText(this, "状态已设为：补打标签", Toast.LENGTH_SHORT).show()
                         finish()
                     }
-                    .setPositiveButton("否") { _: DialogInterface, _: Int ->
+                    .setNegativeButton("否") { _: DialogInterface, _: Int ->
                         LocalStore.updateAssetStatus(this, taskId, asset.code, AssetStatus.MATCHED)
                         Toast.makeText(this, "状态已设为：相符", Toast.LENGTH_SHORT).show()
                         finish()
@@ -90,8 +87,7 @@ class AssetDetailActivity : AppCompatActivity() {
             }
         }
 
-
-btnMismatch.setOnClickListener {
+        btnMismatch.setOnClickListener {
             currentAsset?.let { asset ->
                 AssetEditActivity.start(this, taskId, asset.code)
             }
@@ -109,45 +105,15 @@ btnMismatch.setOnClickListener {
             }
             currentAsset = asset
 
-            // 进入详情时，如果状态不是“未盘点”，弹出状态提示
-            checkAssetStatusAndShowTip(asset)
+            // 如果状态已经为不相符，说明编辑已完成，直接返回资产列表
+            if (asset.status == AssetStatus.MISMATCH) {
+                finish()
+                return
+            }
 
             render(asset)
         }
     }
-
-    private fun checkAssetStatusAndShowTip(asset: Asset) {
-        if (asset.status == AssetStatus.UNCHECKED) {
-            // 未盘点资产，不需要提示
-            return
-        }
-
-        val statusText = asset.status.displayName
-        val fullText = "该资产当前状态为：$statusText"
-        val spannable = SpannableString(fullText)
-        val start = fullText.indexOf(statusText)
-        val end = start + statusText.length
-        val color = getStatusColor(asset.status)
-        spannable.setSpan(ForegroundColorSpan(color), start, end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
-
-        AlertDialog.Builder(this)
-            .setMessage(spannable)
-            .setPositiveButton("确定") { _, _ ->
-                // 如果是不相符状态，提示后返回资产列表
-                if (asset.status == AssetStatus.MISMATCH) {
-                    finish()
-                }
-            }
-            .show()
-    }
-
-    private fun getStatusColor(status: AssetStatus): Int =
-        when (status) {
-            AssetStatus.UNCHECKED -> getColor(R.color.status_unchecked)
-            AssetStatus.MATCHED -> getColor(R.color.status_matched)
-            AssetStatus.MISMATCH -> getColor(R.color.status_mismatch)
-            AssetStatus.LABEL_REPRINT -> getColor(R.color.status_reprint)
-        }
 
     private fun render(asset: Asset) {
         tvCode.text = "资产编码：${asset.code}"
