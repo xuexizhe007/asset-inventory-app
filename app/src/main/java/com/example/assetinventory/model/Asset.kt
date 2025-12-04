@@ -10,6 +10,7 @@ data class Asset(
     
     
     var status: AssetStatus = AssetStatus.UNCHECKED,
+    var category: String = ""  // New field for asset category
     var selectedForPrint: Boolean = false,
     var taskId: Long = 0L
 )
