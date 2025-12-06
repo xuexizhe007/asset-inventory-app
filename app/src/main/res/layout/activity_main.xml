@@ -123,90 +123,102 @@
                         android:text="全选当前列表" />
                 </LinearLayout>
 
-                <!-- 统计信息：一行五项，中间竖线分割，文本居中 -->
+                <!-- 统计信息：两行展示
+                     第一行：总资产 / 相符 / 不相符
+                     第二行：补打标签 / 未盘点
+                -->
                 <LinearLayout
                     android:id="@+id/layoutSummary"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="8dp"
-                    android:orientation="horizontal"
+                    android:orientation="vertical"
                     android:background="@drawable/bg_summary_bar"
-                    android:padding="8dp"
-                    android:gravity="center_vertical">
+                    android:padding="8dp">
 
-                    <TextView
-                        android:id="@+id/tvSummaryTotal"
-                        android:layout_width="0dp"
+                    <!-- 第一行：总资产 / 相符 / 不相符 -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:text="总资产：0"
-                        android:textStyle="bold"
-                        android:textSize="14sp"
-                        android:gravity="center" />
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical">
 
-                    <View
-                        android:layout_width="1dp"
-                        android:layout_height="18dp"
-                        android:layout_marginStart="4dp"
-                        android:layout_marginEnd="4dp"
-                        android:background="#33000000" />
+                        <TextView
+                            android:id="@+id/tvSummaryTotal"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="总资产：0"
+                            android:textStyle="bold"
+                            android:textSize="14sp"
+                            android:gravity="center" />
 
-                    <TextView
-                        android:id="@+id/tvSummaryMatched"
-                        android:layout_width="0dp"
+                        <View
+                            android:layout_width="1dp"
+                            android:layout_height="18dp"
+                            android:layout_marginStart="4dp"
+                            android:layout_marginEnd="4dp"
+                            android:background="#33000000" />
+
+                        <TextView
+                            android:id="@+id/tvSummaryMatched"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="相符：0"
+                            android:textSize="14sp"
+                            android:gravity="center" />
+
+                        <View
+                            android:layout_width="1dp"
+                            android:layout_height="18dp"
+                            android:layout_marginStart="4dp"
+                            android:layout_marginEnd="4dp"
+                            android:background="#33000000" />
+
+                        <TextView
+                            android:id="@+id/tvSummaryMismatch"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="不相符：0"
+                            android:textSize="14sp"
+                            android:gravity="center" />
+                    </LinearLayout>
+
+                    <!-- 第二行：补打标签 / 未盘点 -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:text="相符：0"
-                        android:textSize="14sp"
-                        android:gravity="center" />
+                        android:layout_marginTop="4dp"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical">
 
-                    <View
-                        android:layout_width="1dp"
-                        android:layout_height="18dp"
-                        android:layout_marginStart="4dp"
-                        android:layout_marginEnd="4dp"
-                        android:background="#33000000" />
+                        <TextView
+                            android:id="@+id/tvSummaryReprint"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="补打标签：0"
+                            android:textSize="14sp"
+                            android:gravity="center" />
 
-                    <TextView
-                        android:id="@+id/tvSummaryReprint"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:text="补打标签：0"
-                        android:textSize="14sp"
-                        android:gravity="center" />
+                        <View
+                            android:layout_width="1dp"
+                            android:layout_height="18dp"
+                            android:layout_marginStart="4dp"
+                            android:layout_marginEnd="4dp"
+                            android:background="#33000000" />
 
-                    <View
-                        android:layout_width="1dp"
-                        android:layout_height="18dp"
-                        android:layout_marginStart="4dp"
-                        android:layout_marginEnd="4dp"
-                        android:background="#33000000" />
-
-                    <TextView
-                        android:id="@+id/tvSummaryMismatch"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:text="不相符：0"
-                        android:textSize="14sp"
-                        android:gravity="center" />
-
-                    <View
-                        android:layout_width="1dp"
-                        android:layout_height="18dp"
-                        android:layout_marginStart="4dp"
-                        android:layout_marginEnd="4dp"
-                        android:background="#33000000" />
-
-                    <TextView
-                        android:id="@+id/tvSummaryUnchecked"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:text="未盘点：0"
-                        android:textSize="14sp"
-                        android:gravity="center" />
+                        <TextView
+                            android:id="@+id/tvSummaryUnchecked"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="未盘点：0"
+                            android:textSize="14sp"
+                            android:gravity="center" />
+                    </LinearLayout>
                 </LinearLayout>
 
                 <!-- 盘点状态说明 Legend -->
