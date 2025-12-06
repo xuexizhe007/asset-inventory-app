@@ -120,7 +120,7 @@ object PdfGenerator {
             }
 
             // ========= 资产编码（单行） =========
-            drawSingleLineShrinkValue("资产编码", asset.code, maxTextWidth)
+            drawSingleLineShrinkValue("资产编码", asset.code, maxFullWidth)
 
             // ========= 资产名称（独占一行，占全页宽度，不换行，超长缩小 value） =========
             val isLowValue = asset.category?.trim() == "低值易耗品"
