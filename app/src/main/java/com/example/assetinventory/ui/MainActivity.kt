@@ -38,11 +38,11 @@ class MainActivity : AppCompatActivity() {
     private lateinit var tvSummaryUnchecked: TextView
 
     private lateinit var adapter: AssetAdapter
+    private val selectedStatuses: MutableSet<AssetStatus> = mutableSetOf()
+    private var allAssets: MutableList<Asset> = mutableListOf()
 
     private var taskId: Long = -1L
     private var taskName: String = ""
-    private var allAssets: List<Asset> = emptyList()
-    private var currentFilterStatus: AssetStatus? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -50,6 +50,14 @@ class MainActivity : AppCompatActivity() {
 
         taskId = intent.getLongExtra(EXTRA_TASK_ID, -1L)
         taskName = intent.getStringExtra(EXTRA_TASK_NAME) ?: ""
+
+        if (taskId <= 0L) {
+            Toast.makeText(this, "未找到任务信息", Toast.LENGTH_SHORT).show()
+            finish()
+            return
+        }
+
+        supportActionBar?.title = taskName
 
         btnBackTaskList = findViewById(R.id.btnBackTaskList)
         btnBack = findViewById(R.id.btnBack)
@@ -68,8 +76,15 @@ class MainActivity : AppCompatActivity() {
 
         tvTaskName.text = "当前任务：$taskName"
 
-        btnBackTaskList.setOnClickListener { finish() }
-        btnBack.setOnClickListener { finish() }
+        btnBackTaskList.setOnClickListener {
+            val intent = Intent(this, TaskListActivity::class.java)
+            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
+            startActivity(intent)
+        }
+
+        btnBack.setOnClickListener {
+            finish()
+        }
 
         adapter = AssetAdapter(emptyList()) { asset ->
             val intent = Intent(this, AssetDetailActivity::class.java)
@@ -88,16 +103,28 @@ class MainActivity : AppCompatActivity() {
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
         })
 
-        btnFilterStatus.setOnClickListener { showFilterDialog() }
+        btnFilterStatus.setOnClickListener {
+            showStatusFilterDialog()
+        }
 
         btnInventory.setOnClickListener {
-            checkCameraPermissionAndStartScan()
+            if (allAssets.isEmpty()) {
+                Toast.makeText(this, "该任务没有资产，请先导入任务", Toast.LENGTH_SHORT).show()
+            } else {
+                checkCameraPermissionAndStartScan()
+            }
         }
 
         btnPrint.setOnClickListener {
-            val selected = allAssets.filter { it.selectedForPrint }
-            PdfGenerator.generateLabelsPdf(this, taskName, selected)
+            if (allAssets.isEmpty()) {
+                Toast.makeText(this, "该任务没有资产，请先导入任务", Toast.LENGTH_SHORT).show()
+            } else {
+                val selected = adapter.currentItems.filter { it.selectedForPrint }
+                PdfGenerator.generateLabelsPdf(this, taskName, selected)
+            }
         }
+
+        loadAssets()
     }
 
     override fun onResume() {
@@ -106,54 +133,72 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun loadAssets() {
-        allAssets = LocalStore.getAssetsForTask(this, taskId)
-
-        // 计算 Summary
-        val total = allAssets.size
-        val matched = allAssets.count { it.status == AssetStatus.MATCHED }
-        val reprint = allAssets.count { it.status == AssetStatus.REPRINT }
-        val mismatch = allAssets.count { it.status == AssetStatus.MISMATCHED }
-        val unchecked = allAssets.count { it.status == AssetStatus.UNCHECKED }
-
-        // ✅ 改为“只显示数字”，标签由布局固定展示
-        tvSummaryTotal.text = total.toString()
-        tvSummaryMatched.text = matched.toString()
-        tvSummaryReprint.text = reprint.toString()
-        tvSummaryMismatch.text = mismatch.toString()
-        tvSummaryUnchecked.text = unchecked.toString()
-
+        allAssets = LocalStore.getAssetsForTask(this, taskId).toMutableList()
+        updateSummary()
         applyFilter()
     }
 
-    private fun applyFilter() {
-        val keyword = etSearch.text?.toString()?.trim().orEmpty()
+    private fun updateSummary() {
+        val total = allAssets.size
+        val matched = allAssets.count { it.status == AssetStatus.MATCHED }
+        val reprint = allAssets.count { it.status == AssetStatus.LABEL_REPRINT }
+        val mismatch = allAssets.count { it.status == AssetStatus.MISMATCH }
+        val unchecked = allAssets.count { it.status == AssetStatus.UNCHECKED }
 
-        val filtered = allAssets.filter { asset ->
-            val statusOk = currentFilterStatus?.let { asset.status == it } ?: true
-            val keywordOk = keyword.isBlank() ||
-                asset.code.contains(keyword, ignoreCase = true) ||
-                asset.name.contains(keyword, ignoreCase = true)
-            statusOk && keywordOk
-        }
-
-        adapter.updateItems(filtered)
+        tvSummaryTotal.text = "总资产：$total"
+        tvSummaryMatched.text = "相符：$matched"
+        tvSummaryReprint.text = "补打标签：$reprint"
+        tvSummaryMismatch.text = "不相符：$mismatch"
+        tvSummaryUnchecked.text = "未盘点：$unchecked"
     }
 
-    private fun showFilterDialog() {
-        val items = arrayOf("全部", "相符", "补打标签", "不相符", "未盘点")
+    private fun applyFilter() {
+        val keyword = etSearch.text.toString().trim()
+        val hasStatusFilter = selectedStatuses.isNotEmpty()
+
+        val filtered = allAssets.filter { asset ->
+            val matchKeyword = if (keyword.isEmpty()) {
+                true
+            } else {
+                asset.code.contains(keyword, true) ||
+                        asset.name.contains(keyword, true) ||
+                        (asset.location ?: "").contains(keyword, true)
+            }
+
+            val matchStatus = if (!hasStatusFilter) {
+                true
+            } else {
+                selectedStatuses.contains(asset.status)
+            }
+
+            matchKeyword && matchStatus
+        }
+
+        adapter.update(filtered)
+    }
+
+    private fun showStatusFilterDialog() {
+        val allStatuses = AssetStatus.values()
+        val labels = allStatuses.map { it.displayName }.toTypedArray()
+        val checked = allStatuses.map { selectedStatuses.contains(it) }.toBooleanArray()
+
         AlertDialog.Builder(this)
-            .setTitle("按状态筛选")
-            .setItems(items) { _, which ->
-                currentFilterStatus = when (which) {
-                    1 -> AssetStatus.MATCHED
-                    2 -> AssetStatus.REPRINT
-                    3 -> AssetStatus.MISMATCHED
-                    4 -> AssetStatus.UNCHECKED
-                    else -> null
+            .setTitle("选择盘点状态（可多选）")
+            .setMultiChoiceItems(labels, checked) { _, which, isChecked ->
+                val status = allStatuses[which]
+                if (isChecked) {
+                    selectedStatuses.add(status)
+                } else {
+                    selectedStatuses.remove(status)
                 }
+            }
+            .setPositiveButton("确定") { _, _ ->
                 applyFilter()
             }
-            .setNegativeButton("取消", null)
+            .setNegativeButton("清空") { _, _ ->
+                selectedStatuses.clear()
+                applyFilter()
+            }
             .show()
     }
 
