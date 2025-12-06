@@ -20,7 +20,7 @@ class AssetDbHelper(context: Context) : SQLiteOpenHelper(
             )"""
         )
 
-        // 修改：增加了 category 字段
+        // 修改：增加了 category 字段，位于名字后面
         db.execSQL(
             """CREATE TABLE assets (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
