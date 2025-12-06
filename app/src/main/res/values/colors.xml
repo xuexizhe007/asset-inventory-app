@@ -1,24 +1,31 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <!-- 主题主色（绿色系，可按需要调整） -->
+    <!-- 主色（绿色） -->
     <color name="color_primary">#2E7D32</color>
     <color name="color_primary_dark">#1B5E20</color>
     <color name="color_primary_light">#E8F5E9</color>
 
-    <!-- 兼容老模板（如果主题里用的是这几个名字也不会报错） -->
+    <!-- 兼容原主题字段 -->
     <color name="colorPrimary">@color/color_primary</color>
     <color name="colorPrimaryDark">@color/color_primary_dark</color>
-    <color name="colorAccent">#FF9800</color>
 
-    <!-- 文本颜色 -->
+    <!-- 次主题色（蓝色系，用于强调 / Accent） -->
+    <color name="color_secondary">#0288D1</color>
+    <color name="color_secondary_dark">#01579B</color>
+
+    <!-- 兼容原来的 colorAccent，直接用次主题色 -->
+    <color name="colorAccent">@color/color_secondary</color>
+
+    <!-- 常用文本颜色 -->
     <color name="color_primary_text">#212121</color>
     <color name="color_secondary_text">#666666</color>
 
-    <!-- 背景通用 -->
+    <!-- 白色 / 背景色（补上 @color/white） -->
+    <color name="white">#FFFFFF</color>
     <color name="color_background">#FFFFFF</color>
 
-    <!-- 盘点状态颜色（Legend + 列表左侧色条 + 状态标签） -->
+    <!-- 盘点状态颜色（Legend + 左侧色条 + 状态标签） -->
     <!-- 未盘点：灰色 -->
     <color name="status_unchecked">#BDBDBD</color>
 
