@@ -91,7 +91,7 @@ class AssetDetailActivity : AppCompatActivity() {
         }
 
 
-btnMismatch.setOnClickListener {
+        btnMismatch.setOnClickListener {
             currentAsset?.let { asset ->
                 AssetEditActivity.start(this, taskId, asset.code)
             }
@@ -146,7 +146,11 @@ btnMismatch.setOnClickListener {
 
     private fun render(asset: Asset) {
         tvCode.text = asset.code
-        tvName.text = asset.name
+        
+        // 修改：拼接显示类别
+        val categoryStr = if (asset.category.isNullOrEmpty()) "" else " (${asset.category})"
+        tvName.text = "${asset.name}$categoryStr"
+        
         tvUser.text = asset.user.orEmpty()
         tvDept.text = asset.department.orEmpty()
         tvLocation.text = asset.location.orEmpty()

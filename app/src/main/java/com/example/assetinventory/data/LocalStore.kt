@@ -26,6 +26,7 @@ object LocalStore {
                     put("task_id", taskId)
                     put("code", asset.code)
                     put("name", asset.name)
+                    put("category", asset.category) // 插入类别
                     put("user", asset.user)
                     put("department", asset.department)
                     put("location", asset.location)
@@ -66,12 +67,13 @@ object LocalStore {
     }
 
 
-fun getAssetsForTask(context: Context, taskId: Long): List<Asset> {
+    fun getAssetsForTask(context: Context, taskId: Long): List<Asset> {
         val db = helper(context).readableDatabase
         val list = mutableListOf<Asset>()
+        // 增加 category 列
         val cursor = db.query(
             "assets",
-            arrayOf("code", "name", "user", "department", "location", "start_date", "status"),
+            arrayOf("code", "name", "category", "user", "department", "location", "start_date", "status"),
             "task_id=?",
             arrayOf(taskId.toString()),
             null, null, null
@@ -80,11 +82,12 @@ fun getAssetsForTask(context: Context, taskId: Long): List<Asset> {
             while (it.moveToNext()) {
                 val code = it.getString(0)
                 val name = it.getString(1)
-                val user = it.getString(2)
-                val dept = it.getString(3)
-                val location = it.getString(4)
-                val startDate = it.getString(5)
-                val statusName = it.getString(6)
+                val category = it.getString(2) // 读取类别
+                val user = it.getString(3)
+                val dept = it.getString(4)
+                val location = it.getString(5)
+                val startDate = it.getString(6)
+                val statusName = it.getString(7)
                 val status = try {
                     AssetStatus.valueOf(statusName)
                 } catch (e: Exception) {
@@ -94,6 +97,7 @@ fun getAssetsForTask(context: Context, taskId: Long): List<Asset> {
                     Asset(
                         code = code,
                         name = name,
+                        category = category,
                         user = user,
                         department = dept,
                         location = location,
@@ -111,9 +115,10 @@ fun getAssetsForTask(context: Context, taskId: Long): List<Asset> {
 
     fun findAssetByCode(context: Context, taskId: Long, code: String): Asset? {
         val db = helper(context).readableDatabase
+        // 增加 category 列
         val cursor = db.query(
             "assets",
-            arrayOf("code", "name", "user", "department", "location", "start_date", "status"),
+            arrayOf("code", "name", "category", "user", "department", "location", "start_date", "status"),
             "task_id=? AND code=?",
             arrayOf(taskId.toString(), code),
             null, null, null
@@ -121,11 +126,12 @@ fun getAssetsForTask(context: Context, taskId: Long): List<Asset> {
         cursor.use {
             if (it.moveToFirst()) {
                 val name = it.getString(1)
-                val user = it.getString(2)
-                val dept = it.getString(3)
-                val location = it.getString(4)
-                val startDate = it.getString(5)
-                val statusName = it.getString(6)
+                val category = it.getString(2) // 读取类别
+                val user = it.getString(3)
+                val dept = it.getString(4)
+                val location = it.getString(5)
+                val startDate = it.getString(6)
+                val statusName = it.getString(7)
                 val status = try {
                     AssetStatus.valueOf(statusName)
                 } catch (e: Exception) {
@@ -135,6 +141,7 @@ fun getAssetsForTask(context: Context, taskId: Long): List<Asset> {
                 return Asset(
                     code = code,
                     name = name,
+                    category = category,
                     user = user,
                     department = dept,
                     location = location,

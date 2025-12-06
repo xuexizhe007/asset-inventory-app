@@ -3,6 +3,7 @@ package com.example.assetinventory.model
 data class Asset(
     val code: String,
     val name: String,
+    val category: String?, // 新增资产类别
     var user: String?,
     var department: String?,
     var location: String?,

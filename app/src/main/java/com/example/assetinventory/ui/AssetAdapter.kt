@@ -48,7 +48,11 @@ class AssetAdapter(
 
         fun bind(asset: Asset) {
             tvCode.text = "资产编码：${asset.code}"
-            tvName.text = "资产名称：${asset.name}"
+            
+            // 修改：同时显示名称和类别
+            val categoryText = asset.category.orEmpty()
+            tvName.text = "资产名称：${asset.name}\n资产类别：$categoryText"
+            
             tvUserDept.text = "使用人：${asset.user.orEmpty()} / 使用部门：${asset.department.orEmpty()}"
             tvLocation.text = "存放地点：${asset.location.orEmpty()}"
             tvStartDate.text = "投用日期：${asset.startDate}"

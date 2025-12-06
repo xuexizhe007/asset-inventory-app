@@ -20,12 +20,14 @@ class AssetDbHelper(context: Context) : SQLiteOpenHelper(
             )"""
         )
 
+        // 修改：增加了 category 字段
         db.execSQL(
             """CREATE TABLE assets (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 task_id INTEGER NOT NULL,
                 code TEXT NOT NULL,
                 name TEXT NOT NULL,
+                category TEXT, 
                 user TEXT,
                 department TEXT,
                 location TEXT,
@@ -44,6 +46,7 @@ class AssetDbHelper(context: Context) : SQLiteOpenHelper(
 
     companion object {
         private const val DATABASE_NAME = "assets.db"
-        private const val DATABASE_VERSION = 1
+        // 建议增加版本号，但在开发阶段直接重装APP更简单
+        private const val DATABASE_VERSION = 1 
     }
 }

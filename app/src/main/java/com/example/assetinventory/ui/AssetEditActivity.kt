@@ -110,7 +110,11 @@ class AssetEditActivity : AppCompatActivity() {
         }
         currentAsset = asset
         tvCode.text = "资产编码：${asset.code}"
-        tvName.text = "资产名称：${asset.name}"
+        
+        // 修改：拼接显示类别
+        val categoryStr = if (asset.category.isNullOrEmpty()) "" else " \n资产类别：${asset.category}"
+        tvName.text = "资产名称：${asset.name}$categoryStr"
+        
         tvStartDate.text = "投用日期：${asset.startDate}"
         etUser.setText(asset.user.orEmpty())
         etDept.setText(asset.department.orEmpty())

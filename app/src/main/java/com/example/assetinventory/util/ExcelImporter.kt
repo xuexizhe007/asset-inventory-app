@@ -17,6 +17,7 @@ object ExcelImporter {
 
     private const val HEADER_CODE = "资产编码"
     private const val HEADER_NAME = "资产名称"
+    private const val HEADER_CATEGORY = "资产类别" // 新增表头定义
     private const val HEADER_USER = "使用人"
     private const val HEADER_DEPT = "使用部门"
     private const val HEADER_LOCATION = "存放地点"
@@ -46,8 +47,10 @@ object ExcelImporter {
 
         val headerRow = sheet.getRow(0) ?: throw IllegalStateException("缺少表头")
 
+        // 查找各列索引
         val codeIndex = findColumnIndex(headerRow, HEADER_CODE)
         val nameIndex = findColumnIndex(headerRow, HEADER_NAME)
+        val categoryIndex = findColumnIndex(headerRow, HEADER_CATEGORY) // 获取类别列索引
         val userIndex = findColumnIndex(headerRow, HEADER_USER)
         val deptIndex = findColumnIndex(headerRow, HEADER_DEPT)
         val locationIndex = findColumnIndex(headerRow, HEADER_LOCATION)
@@ -64,6 +67,9 @@ object ExcelImporter {
             val name = getCellString(row.getCell(nameIndex), formatter)?.trim().orEmpty()
             if (code.isEmpty() || name.isEmpty()) continue
 
+            // 读取类别
+            val category = getCellString(row.getCell(categoryIndex), formatter)?.trim()
+            
             val user = getCellString(row.getCell(userIndex), formatter)?.trim()
             val dept = getCellString(row.getCell(deptIndex), formatter)?.trim()
             val location = getCellString(row.getCell(locationIndex), formatter)?.trim()
@@ -82,6 +88,7 @@ object ExcelImporter {
                 Asset(
                     code = code,
                     name = name,
+                    category = category, // 存入对象
                     user = user,
                     department = dept,
                     location = location,
