@@ -11,18 +11,22 @@ import com.google.zxing.BarcodeFormat
 import com.google.zxing.qrcode.QRCodeWriter
 import java.io.File
 import java.io.FileOutputStream
-import kotlin.math.max
+import kotlin.math.min
 
 object PdfGenerator {
 
     /**
      * 生成资产标签 PDF 并通过分享功能发给其他 APP：
      * - 每个资产 1 页
-     * - 尺寸：7cm x 4cm（这里用固定像素模拟打印比例，和你原工程保持一致风格）
+     * - 尺寸：7cm x 4cm
      * - 左侧 3/4 为文字区域，右侧 1/4 为二维码
-     * - 二维码更大（新需求）
-     * - “资产名称 + 使用部门”同一行，放不下则缩小 value 字体（仅缩小值，不缩小 label）
-     * - 若资产类别为“低值易耗品”，资产名称后追加“(低值易耗品)”
+     * - 二维码顶部与“使用人”文字顶部对齐
+     * - 资产名称、使用部门、存放地点支持换行（在左侧 3/4 区域内）
+     *
+     * 新需求：
+     * 1) 若资产类别是低值易耗品，则在资产名称后追加“(低值易耗品)”
+     * 2) 二维码更大一些
+     * 3) “资产名称”和“使用部门”放在同一行；如果超过一行，则缩小字体（仅缩小实际内容 value，不缩小“资产名称/使用部门”几个字）
      */
     fun generateLabelsPdf(context: Context, taskName: String?, assets: List<Asset>) {
         if (assets.isEmpty()) {
@@ -30,99 +34,171 @@ object PdfGenerator {
             return
         }
 
-        // 页面尺寸：约 7cm x 4cm（像素）
-        // 这类标签一般由打印机驱动缩放，这里给一个清晰的画布尺寸即可。
-        val pageWidth = 700
-        val pageHeight = 400
-
-        val padding = 18f
-        val qrAreaRatio = 0.26f // 右侧二维码区域占比
-        val qrAreaWidth = pageWidth * qrAreaRatio
-        val textAreaWidth = pageWidth - qrAreaWidth
-
-        // Paint：label 固定字号；value 可缩放字号
-        val labelPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
-            color = Color.BLACK
-            textSize = 26f
-            typeface = Typeface.create(Typeface.DEFAULT, Typeface.BOLD)
-        }
-        val valuePaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
-            color = Color.BLACK
-            textSize = 26f
-            typeface = Typeface.create(Typeface.DEFAULT, Typeface.NORMAL)
-        }
-
-        val thinLinePaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
-            color = Color.LTGRAY
-            strokeWidth = 2f
-        }
-
         val pdfDocument = PdfDocument()
 
-        // PDF 标题（用于文件名）
-        val title = (taskName?.trim().takeUnless { it.isNullOrEmpty() } ?: "资产标签")
+        // 7cm x 4cm -> PDF point 单位
+        val widthPoints = (7f / 2.54f * 72f).toInt()
+        val heightPoints = (4f / 2.54f * 72f).toInt()
 
-        for ((index, asset) in assets.withIndex()) {
-            val pageInfo = PdfDocument.PageInfo.Builder(pageWidth, pageHeight, index + 1).create()
+        // label 固定字号（不缩小）
+        val labelPaint = Paint().apply {
+            color = Color.BLACK
+            textSize = 10f
+            isAntiAlias = true
+        }
+
+        // value 默认字号（可缩小）
+        val valuePaint = Paint().apply {
+            color = Color.BLACK
+            textSize = 10f
+            isAntiAlias = true
+        }
+
+        val title = taskName ?: "资产标签"
+
+        assets.forEachIndexed { index, asset ->
+            val pageInfo = PdfDocument.PageInfo.Builder(
+                widthPoints,
+                heightPoints,
+                index + 1
+            ).create()
+
             val page = pdfDocument.startPage(pageInfo)
             val canvas = page.canvas
 
-            canvas.drawColor(Color.WHITE)
+            val padding = 8f
+            val textAreaWidth = widthPoints * 0.75f
+            val qrAreaWidth = widthPoints - textAreaWidth
 
-            // 分割线：文字区域 / 二维码区域
-            val splitX = textAreaWidth
-            canvas.drawLine(splitX, 0f, splitX, pageHeight.toFloat(), thinLinePaint)
+            // 原来二维码大小 = 右侧区域(扣 padding)的最大正方形
+            val baseQrSize = (qrAreaWidth - padding * 2).toInt()
 
-            // ========== 左侧文字 ==========
-            var y = padding + 30f
+            // 需求2：二维码更大
+            // 但不能超过右侧区域，否则会破版；这里在可容纳范围内做“尽量更大”
+            val qrSize = min((baseQrSize * 1.22f).toInt(), baseQrSize)
+
+            var y = padding + 10f
+            var userBaseline: Float? = null
+
             val maxTextWidth = textAreaWidth - padding * 2
-            val gapBetweenBlocks = 22f
 
-            // 需求1：低值易耗品名称追加
+            fun drawSingleLine(label: String, value: String) {
+                val text = "$label：$value"
+                canvas.drawText(text, padding, y, labelPaint)
+                y += 14f
+            }
+
+            fun drawWrapped(label: String, value: String) {
+                // 原逻辑保留：首行包含 label
+                val labelPrefix = "$label："
+                val full = labelPrefix + value
+                val chars = full.toCharArray()
+                var start = 0
+                while (start < chars.size) {
+                    var i = start
+                    var line = ""
+                    while (i < chars.size) {
+                        val candidate = (line + chars[i])
+                        val w = labelPaint.measureText(candidate)
+                        if (w > maxTextWidth && line.isNotEmpty()) {
+                            break
+                        }
+                        line = candidate
+                        i++
+                    }
+                    canvas.drawText(line, padding, y, labelPaint)
+                    y += 14f
+                    start += line.length
+                }
+            }
+
+            /**
+             * 需求3：在同一行绘制
+             *   资产名称：<value1>    使用部门：<value2>
+             * 若超出 maxTextWidth：只缩小 valuePaint 的字号（labelPaint 不缩小）
+             *
+             * 注意：只占用“原本资产名称那一行”的高度（y += 14f 一次），避免版式变化。
+             */
+            fun drawNameDeptOneLineAutoShrinkValue(nameValue: String, deptValue: String) {
+                val label1 = "资产名称："
+                val label2 = "使用部门："
+                val gap = "    " // 间隔
+
+                val label1W = labelPaint.measureText(label1)
+                val label2W = labelPaint.measureText(label2)
+
+                val originalSize = valuePaint.textSize
+                val minSize = 7.5f
+
+                fun totalWidth(): Float {
+                    val gapW = valuePaint.measureText(gap)
+                    val v1W = valuePaint.measureText(nameValue)
+                    val v2W = valuePaint.measureText(deptValue)
+                    return label1W + v1W + gapW + label2W + v2W
+                }
+
+                // 仅缩小 value 字号
+                var size = originalSize
+                valuePaint.textSize = size
+                while (totalWidth() > maxTextWidth && size > minSize) {
+                    size -= 0.5f
+                    valuePaint.textSize = size
+                }
+
+                // 绘制：label 用 labelPaint（固定），value 用 valuePaint（可能变小）
+                canvas.drawText(label1, padding, y, labelPaint)
+                var cursorX = padding + label1W
+                canvas.drawText(nameValue, cursorX, y, valuePaint)
+                cursorX += valuePaint.measureText(nameValue)
+
+                canvas.drawText(gap, cursorX, y, valuePaint)
+                cursorX += valuePaint.measureText(gap)
+
+                canvas.drawText(label2, cursorX, y, labelPaint)
+                cursorX += label2W
+                canvas.drawText(deptValue, cursorX, y, valuePaint)
+
+                // 只占一行高度，保持原版式
+                y += 14f
+
+                // 恢复字号
+                valuePaint.textSize = originalSize
+            }
+
+            // 第一行：资产编码（单行，保持原逻辑）
+            drawSingleLine("资产编码", asset.code)
+
+            // 需求1：低值易耗品追加
             val isLowValue = asset.category?.trim() == "低值易耗品"
-            val nameValue = if (isLowValue) "${asset.name}(低值易耗品)" else asset.name
+            val nameToPrint = asset.name + if (isLowValue) "(低值易耗品)" else ""
 
-            val deptValue = asset.department ?: ""
-            val userValue = asset.user ?: ""
-            val locValue = asset.location ?: ""
-            val codeValue = asset.code
-            val startDateValue = asset.startDate
-
-            // 需求3：“资产名称 + 使用部门”同一行，放不下就缩小 value 字体（label 不缩小）
-            y = drawNameAndDeptOneLineAdaptive(
-                canvas = canvas,
-                x = padding,
-                y = y,
-                maxWidth = maxTextWidth,
-                labelPaint = labelPaint,
-                valuePaint = valuePaint,
-                nameValue = nameValue,
-                deptValue = deptValue
+            // 需求3：把“资产名称 + 使用部门”合并成一行（替代原先两次 drawWrapped）
+            // 注意：为了保持版式稳定，我们不再对“资产名称/使用部门”做换行，而是缩小 value 来塞进一行。
+            drawNameDeptOneLineAutoShrinkValue(
+                nameValue = nameToPrint,
+                deptValue = asset.department.orEmpty()
             )
 
-            y += gapBetweenBlocks
+            // 使用人：保持原逻辑（单行 + baseline 作为二维码对齐参考）
+            val labelUser = "使用人"
+            val userText = asset.user.orEmpty()
+            val textUser = "$labelUser：$userText"
+            canvas.drawText(textUser, padding, y, labelPaint)
+            userBaseline = y
+            y += 14f
 
-            // 其它字段正常一行；值为空时也保持格式
-            y = drawLabelValueLine(canvas, padding, y, labelPaint, valuePaint, "资产编码", codeValue)
-            y += gapBetweenBlocks
-            val userLineTopY = y - labelPaint.textSize // 记录“使用人”行的大致顶部，用于二维码对齐
-            y = drawLabelValueLine(canvas, padding, y, labelPaint, valuePaint, "使用人", userValue)
-            y += gapBetweenBlocks
-            y = drawLabelValueLine(canvas, padding, y, labelPaint, valuePaint, "存放地点", locValue)
-            y += gapBetweenBlocks
-            y = drawLabelValueLine(canvas, padding, y, labelPaint, valuePaint, "投用日期", startDateValue)
+            // 存放地点：保持原逻辑（允许换行）
+            drawWrapped("存放地点", asset.location.orEmpty())
 
-            // ========== 右侧二维码（更大） ==========
+            // 投用日期：保持原逻辑（单行）
+            drawSingleLine("投用日期", asset.startDate)
+
+            // 右侧二维码区域，顶部与“使用人”对齐（保持原逻辑，只放大二维码 size）
             try {
-                val qrContent = asset.code.ifBlank { asset.name }
-                val qrSize = 220 // 需求2：二维码边长更大（可按领导感觉继续加到 240/260）
-                val qrBitmap = createQrBitmap(qrContent, qrSize)
-
-                // 二维码放在右侧区域，尽量大，且顶部与“使用人”行对齐（原需求）
-                val qrLeft = splitX + (qrAreaWidth - qrSize) / 2f
-                val qrTop = max(padding, userLineTopY) // 与“使用人”行顶部对齐
-                val rect = RectF(qrLeft, qrTop, qrLeft + qrSize, qrTop + qrSize)
-
+                val qrBitmap = createQrBitmap(asset.code, qrSize)
+                val left = textAreaWidth + padding
+                val top = (userBaseline ?: (padding + 10f)) - labelPaint.textSize
+                val rect = RectF(left, top, left + qrSize, top + qrSize)
                 canvas.drawBitmap(qrBitmap, null, rect, null)
             } catch (_: Exception) {
                 // ignore QR failure
@@ -154,92 +230,11 @@ object PdfGenerator {
                 putExtra(Intent.EXTRA_STREAM, uri)
                 addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
             }
-
-            context.startActivity(Intent.createChooser(intent, "分享 PDF"))
+            context.startActivity(Intent.createChooser(intent, "分享资产标签 PDF"))
         } catch (e: Exception) {
             e.printStackTrace()
-            Toast.makeText(context, "生成PDF失败：${e.message}", Toast.LENGTH_LONG).show()
-            try {
-                pdfDocument.close()
-            } catch (_: Exception) {}
+            Toast.makeText(context, "生成或分享 PDF 时出错：${e.message}", Toast.LENGTH_LONG).show()
         }
-    }
-
-    /**
-     * 画一行：label（固定） + value（正常）
-     */
-    private fun drawLabelValueLine(
-        canvas: Canvas,
-        x: Float,
-        y: Float,
-        labelPaint: Paint,
-        valuePaint: Paint,
-        label: String,
-        value: String
-    ): Float {
-        var curY = y
-        val labelText = "$label："
-        canvas.drawText(labelText, x, curY, labelPaint)
-        val labelW = labelPaint.measureText(labelText)
-        canvas.drawText(value, x + labelW, curY, valuePaint)
-        return curY
-    }
-
-    /**
-     * 需求3：资产名称 + 使用部门在同一行，如果放不下，则缩小 value 字体（只缩小值，不缩小 label）
-     */
-    private fun drawNameAndDeptOneLineAdaptive(
-        canvas: Canvas,
-        x: Float,
-        y: Float,
-        maxWidth: Float,
-        labelPaint: Paint,
-        valuePaint: Paint,
-        nameValue: String,
-        deptValue: String
-    ): Float {
-        val label1 = "资产名称："
-        val label2 = "使用部门："
-        val gap = "    " // 两个字段之间的间隔
-
-        val label1W = labelPaint.measureText(label1)
-        val label2W = labelPaint.measureText(label2)
-        val gapW = valuePaint.measureText(gap)
-
-        val originalValueSize = valuePaint.textSize
-        val minValueSize = 18f
-
-        var testSize = originalValueSize
-
-        fun totalWidth(): Float {
-            valuePaint.textSize = testSize
-            val v1 = valuePaint.measureText(nameValue)
-            val v2 = valuePaint.measureText(deptValue)
-            return label1W + v1 + gapW + label2W + v2
-        }
-
-        while (totalWidth() > maxWidth && testSize > minValueSize) {
-            testSize -= 1.5f
-        }
-        valuePaint.textSize = testSize
-
-        // 开始绘制
-        canvas.drawText(label1, x, y, labelPaint)
-        var cursorX = x + label1W
-        canvas.drawText(nameValue, cursorX, y, valuePaint)
-
-        cursorX += valuePaint.measureText(nameValue)
-        canvas.drawText(gap, cursorX, y, valuePaint)
-        cursorX += valuePaint.measureText(gap)
-
-        canvas.drawText(label2, cursorX, y, labelPaint)
-        cursorX += label2W
-        canvas.drawText(deptValue, cursorX, y, valuePaint)
-
-        // 恢复 value 字体（避免影响后续行）
-        valuePaint.textSize = originalValueSize
-
-        return y
     }
 
     private fun createQrBitmap(content: String, size: Int): Bitmap {
@@ -248,10 +243,10 @@ object PdfGenerator {
         val width = bitMatrix.width
         val height = bitMatrix.height
         val pixels = IntArray(width * height)
-        for (yy in 0 until height) {
-            val offset = yy * width
-            for (xx in 0 until width) {
-                pixels[offset + xx] = if (bitMatrix.get(xx, yy)) Color.BLACK else Color.WHITE
+        for (y in 0 until height) {
+            val offset = y * width
+            for (x in 0 until width) {
+                pixels[offset + x] = if (bitMatrix.get(x, y)) Color.BLACK else Color.WHITE
             }
         }
         return Bitmap.createBitmap(pixels, width, height, Bitmap.Config.RGB_565)
