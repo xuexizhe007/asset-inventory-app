@@ -14,14 +14,15 @@ object LocalStore {
         val db = helper(context).writableDatabase
         db.beginTransaction()
         try {
+            // insert task
             val taskValues = ContentValues().apply {
                 put("name", name)
-                put("file_name", name)
                 put("created_at", System.currentTimeMillis())
             }
-            val taskId = db.insertOrThrow("tasks", null, taskValues)
+            val taskId = db.insert("tasks", null, taskValues)
 
-            assets.forEach { asset ->
+            // insert assets
+            for (asset in assets) {
                 val values = ContentValues().apply {
                     put("task_id", taskId)
                     put("code", asset.code)
@@ -56,21 +57,19 @@ object LocalStore {
         cursor.use {
             while (it.moveToNext()) {
                 val id = it.getLong(0)
-                val name = it.getString(1) ?: ""
+                val name = it.getString(1)
                 val createdAt = it.getLong(2)
                 val count = it.getInt(3)
-                list.add(TaskInfo(id, name, count, createdAt))
+                list.add(TaskInfo(id = id, name = name, createdAt = createdAt, assetCount = count))
             }
         }
         db.close()
         return list
     }
 
-
     fun getAssetsForTask(context: Context, taskId: Long): List<Asset> {
         val db = helper(context).readableDatabase
         val list = mutableListOf<Asset>()
-        // 增加 category 列
         val cursor = db.query(
             "assets",
             arrayOf("code", "name", "category", "user", "department", "location", "start_date", "status"),
@@ -113,18 +112,19 @@ object LocalStore {
         return list
     }
 
-    fun findAssetByCode(context: Context, taskId: Long, code: String): Asset? {
+    fun getAsset(context: Context, taskId: Long, code: String): Asset? {
         val db = helper(context).readableDatabase
-        // 增加 category 列
         val cursor = db.query(
             "assets",
             arrayOf("code", "name", "category", "user", "department", "location", "start_date", "status"),
             "task_id=? AND code=?",
             arrayOf(taskId.toString(), code),
-            null, null, null
+            null, null, null,
+            "1"
         )
         cursor.use {
             if (it.moveToFirst()) {
+                val c = it.getString(0)
                 val name = it.getString(1)
                 val category = it.getString(2) // 读取类别
                 val user = it.getString(3)
@@ -139,7 +139,7 @@ object LocalStore {
                 }
                 db.close()
                 return Asset(
-                    code = code,
+                    code = c,
                     name = name,
                     category = category,
                     user = user,
@@ -156,6 +156,26 @@ object LocalStore {
         return null
     }
 
+    fun updateAsset(context: Context, taskId: Long, code: String, asset: Asset) {
+        val db = helper(context).writableDatabase
+        val values = ContentValues().apply {
+            put("name", asset.name)
+            put("category", asset.category)
+            put("user", asset.user)
+            put("department", asset.department)
+            put("location", asset.location)
+            put("start_date", asset.startDate)
+            put("status", asset.status.name)
+        }
+        db.update(
+            "assets",
+            values,
+            "task_id=? AND code=?",
+            arrayOf(taskId.toString(), code)
+        )
+        db.close()
+    }
+
     fun updateAssetStatus(context: Context, taskId: Long, code: String, status: AssetStatus) {
         val db = helper(context).writableDatabase
         val values = ContentValues().apply {
@@ -170,29 +190,62 @@ object LocalStore {
         db.close()
     }
 
-    fun updateAssetDetails(
-        context: Context,
-        taskId: Long,
-        code: String,
-        user: String?,
-        department: String?,
-        location: String?,
-        status: AssetStatus
-    ) {
-        val db = helper(context).writableDatabase
-        val values = ContentValues().apply {
-            put("user", user)
-            put("department", department)
-            put("location", location)
-            put("status", status.name)
-        }
-        db.update(
+    fun getAssetsByTask(context: Context, taskId: Long): List<Asset> {
+        val db = helper(context).readableDatabase
+        val list = mutableListOf<Asset>()
+        val cursor = db.query(
             "assets",
-            values,
-            "task_id=? AND code=?",
-            arrayOf(taskId.toString(), code)
+            arrayOf("code", "name", "category", "user", "department", "location", "start_date", "status"),
+            "task_id=?",
+            arrayOf(taskId.toString()),
+            null, null, null
         )
+        cursor.use {
+            while (it.moveToNext()) {
+                val code = it.getString(0)
+                val name = it.getString(1)
+                val category = it.getString(2)
+                val user = it.getString(3)
+                val dept = it.getString(4)
+                val location = it.getString(5)
+                val startDate = it.getString(6)
+                val statusName = it.getString(7)
+                val status = try {
+                    AssetStatus.valueOf(statusName)
+                } catch (e: Exception) {
+                    AssetStatus.UNCHECKED
+                }
+                list.add(
+                    Asset(
+                        code = code,
+                        name = name,
+                        category = category,
+                        user = user,
+                        department = dept,
+                        location = location,
+                        startDate = startDate,
+                        status = status,
+                        selectedForPrint = false,
+                        taskId = taskId
+                    )
+                )
+            }
+        }
         db.close()
+        return list
+    }
+
+    fun deleteTaskCascade(context: Context, taskId: Long) {
+        val db = helper(context).writableDatabase
+        db.beginTransaction()
+        try {
+            db.delete("assets", "task_id=?", arrayOf(taskId.toString()))
+            db.delete("tasks", "id=?", arrayOf(taskId.toString()))
+            db.setTransactionSuccessful()
+        } finally {
+            db.endTransaction()
+            db.close()
+        }
     }
 
     fun clearAll(context: Context) {
