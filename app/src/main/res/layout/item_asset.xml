@@ -3,67 +3,99 @@
     xmlns:card_view="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_margin="4dp"
-    card_view:cardElevation="2dp"
-    card_view:cardCornerRadius="8dp">
+    android:layout_marginHorizontal="6dp"
+    android:layout_marginVertical="4dp"
+    card_view:cardElevation="1dp"
+    card_view:cardCornerRadius="14dp">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        android:padding="8dp">
+        android:paddingHorizontal="12dp"
+        android:paddingVertical="10dp"
+        android:gravity="center_vertical">
 
         <CheckBox
             android:id="@+id/cbSelect"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content" />
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="10dp" />
 
         <LinearLayout
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginStart="8dp"
             android:layout_weight="1"
             android:orientation="vertical">
-
-            <TextView
-                android:id="@+id/tvCode"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="资产编码"
-                android:textStyle="bold" />
 
             <TextView
                 android:id="@+id/tvName"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="资产名称" />
+                android:text="资产名称"
+                android:textColor="#111827"
+                android:textStyle="bold"
+                android:textSize="16sp"
+                android:maxLines="1"
+                android:ellipsize="end" />
+
+            <TextView
+                android:id="@+id/tvCode"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="编码：A0001"
+                android:textColor="#6B7280"
+                android:textSize="12sp"
+                android:layout_marginTop="2dp"
+                android:maxLines="1"
+                android:ellipsize="end" />
 
             <TextView
                 android:id="@+id/tvUserDept"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="使用人 / 使用部门" />
+                android:text="使用人 / 部门"
+                android:textColor="#374151"
+                android:textSize="13sp"
+                android:layout_marginTop="6dp"
+                android:maxLines="1"
+                android:ellipsize="end" />
 
             <TextView
                 android:id="@+id/tvLocation"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="存放地点" />
+                android:text="存放地点"
+                android:textColor="#374151"
+                android:textSize="13sp"
+                android:layout_marginTop="2dp"
+                android:maxLines="1"
+                android:ellipsize="end" />
 
             <TextView
                 android:id="@+id/tvStartDate"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="投用日期" />
+                android:text="投用日期"
+                android:textColor="#6B7280"
+                android:textSize="12sp"
+                android:layout_marginTop="4dp"
+                android:maxLines="1"
+                android:ellipsize="end" />
         </LinearLayout>
 
         <TextView
             android:id="@+id/tvStatus"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:padding="4dp"
+            android:paddingHorizontal="10dp"
+            android:paddingVertical="6dp"
             android:text="未盘点"
-            android:textColor="@android:color/white" />
+            android:textColor="@android:color/white"
+            android:textSize="12sp"
+            android:textStyle="bold"
+            android:minWidth="54dp"
+            android:gravity="center" />
     </LinearLayout>
 
 </androidx.cardview.widget.CardView>
