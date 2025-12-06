@@ -53,6 +53,13 @@ class MainActivity : AppCompatActivity() {
         taskId = intent.getLongExtra(EXTRA_TASK_ID, -1L)
         taskName = intent.getStringExtra(EXTRA_TASK_NAME) ?: ""
 
+        // 如果任务名称未通过 Intent 传入（例如从编辑页返回时），
+        // 尝试根据 taskId 从本地任务列表中恢复
+        if (taskId > 0L && taskName.isBlank()) {
+            val tasks = LocalStore.getTasks(this)
+            taskName = tasks.firstOrNull { it.id == taskId }?.name ?: ""
+        }
+
         if (taskId <= 0L) {
             Toast.makeText(this, "未找到任务信息", Toast.LENGTH_SHORT).show()
             finish()
