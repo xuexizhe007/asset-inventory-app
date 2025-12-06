@@ -1,53 +1,16 @@
-<?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <!-- ==================== 新设计规范命名 (驼峰) ==================== -->
-    <!-- 主色调：商务蓝 -->
-    <color name="colorPrimary">#2563EB</color>
-    <color name="colorPrimaryVariant">#1E40AF</color>
-    <color name="colorOnPrimary">#FFFFFF</color>
-
-    <!-- 辅助色：用于强调 -->
-    <color name="colorSecondary">#0EA5E9</color>
-    <color name="colorSecondaryVariant">#0284C7</color>
-    <color name="colorOnSecondary">#FFFFFF</color>
-
-    <!-- 背景色 -->
-    <color name="backgroundColor">#F3F4F6</color>
-    <color name="surfaceColor">#FFFFFF</color>
-    <color name="dividerColor">#E5E7EB</color>
-
-    <!-- 文本颜色 -->
-    <color name="textPrimary">#1F2937</color>
-    <color name="textSecondary">#6B7280</color>
-    <color name="textHint">#9CA3AF</color>
-
-    <!-- 状态颜色 -->
-    <color name="status_unchecked">#9CA3AF</color>
-    <color name="status_matched">#10B981</color>
-    <color name="status_mismatch">#EF4444</color>
-    <color name="status_reprint">#F59E0B</color>
-    
-    <color name="status_unchecked_bg">#F3F4F6</color>
-    <color name="status_matched_bg">#D1FAE5</color>
-    <color name="status_mismatch_bg">#FEE2E2</color>
-    <color name="status_reprint_bg">#FEF3C7</color>
-
+    <color name="color_primary">#4CAF50</color>
+    <color name="color_primary_dark">#388E3C</color>
+    <color name="color_primary_light">#C8E6C9</color>
+    <color name="color_secondary">#03A9F4</color>
+    <color name="color_secondary_dark">#0288D1</color>
+    <color name="color_secondary_light">#B3E5FC</color>
     <color name="black">#000000</color>
     <color name="white">#FFFFFF</color>
 
-    <!-- ==================== 兼容旧代码命名 ==================== -->
-    <color name="color_primary">@color/colorPrimary</color>
-    <color name="color_primary_dark">@color/colorPrimaryVariant</color>
-    <color name="color_secondary">@color/colorSecondary</color>
-    <color name="color_secondary_dark">@color/colorSecondaryVariant</color>
-    
-    <!-- 【本次修复】补充缺少的 color_primary_light，使用极淡的蓝色 -->
-    <color name="color_primary_light">#DBEAFE</color>
-    
-    <!-- 防止旧布局引用 purple -->
-    <color name="purple_200">@color/colorSecondary</color>
-    <color name="purple_500">@color/colorPrimary</color>
-    <color name="purple_700">@color/colorPrimaryVariant</color>
-    <color name="teal_200">@color/colorSecondary</color>
-    <color name="teal_700">@color/colorSecondaryVariant</color>
+    <!-- 盘点状态颜色，清新风格且互不相同 -->
+    <color name="status_unchecked">#B0BEC5</color>   <!-- 灰蓝 -->
+    <color name="status_matched">#81C784</color>     <!-- 淡绿 -->
+    <color name="status_mismatch">#FF8A65</color>   <!-- 橙红 -->
+    <color name="status_reprint">#FFD54F</color>    <!-- 亮黄 -->
 </resources>

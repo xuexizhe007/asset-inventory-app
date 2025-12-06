@@ -3,13 +3,14 @@ package com.example.assetinventory.ui
 import android.content.DialogInterface
 import android.content.Intent
 import android.os.Bundle
-import android.view.MenuItem
 import android.widget.Button
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.content.ContextCompat
+import android.text.SpannableString
+import android.text.Spanned
+import android.text.style.ForegroundColorSpan
 import com.example.assetinventory.R
 import com.example.assetinventory.data.LocalStore
 import com.example.assetinventory.model.Asset
@@ -17,14 +18,14 @@ import com.example.assetinventory.model.AssetStatus
 
 class AssetDetailActivity : AppCompatActivity() {
 
+    private lateinit var btnBackTaskList: Button
+    private lateinit var btnBack: Button
     private lateinit var tvCode: TextView
     private lateinit var tvName: TextView
-    // 使用 include 布局内的 ID
-    private lateinit var tvUserValue: TextView
-    private lateinit var tvDeptValue: TextView
-    private lateinit var tvLocationValue: TextView
-    private lateinit var tvStartDateValue: TextView
-    
+    private lateinit var tvUser: TextView
+    private lateinit var tvDept: TextView
+    private lateinit var tvLocation: TextView
+    private lateinit var tvStartDate: TextView
     private lateinit var tvStatus: TextView
     private lateinit var btnMatched: Button
     private lateinit var btnMismatch: Button
@@ -37,8 +38,6 @@ class AssetDetailActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_asset_detail)
 
-        // 启用 Toolbar 返回
-        supportActionBar?.setDisplayHomeAsUpEnabled(true)
         supportActionBar?.title = "资产详情"
 
         taskId = intent.getLongExtra(EXTRA_TASK_ID, -1L)
@@ -50,28 +49,27 @@ class AssetDetailActivity : AppCompatActivity() {
             return
         }
 
-        // 绑定视图
+        btnBackTaskList = findViewById(R.id.btnBackTaskList)
+        btnBack = findViewById(R.id.btnBack)
         tvCode = findViewById(R.id.tvCode)
         tvName = findViewById(R.id.tvName)
+        tvUser = findViewById(R.id.tvUser)
+        tvDept = findViewById(R.id.tvDept)
+        tvLocation = findViewById(R.id.tvLocation)
+        tvStartDate = findViewById(R.id.tvStartDate)
         tvStatus = findViewById(R.id.tvStatus)
         btnMatched = findViewById(R.id.btnMatched)
         btnMismatch = findViewById(R.id.btnMismatch)
-        
-        // 绑定 include 内部的 TextView (简单粗暴法：先找容器再找ID，或直接全局找ID如果没重复)
-        // 这里假设 rowUser 是 include 的 id，tvLabel/tvValue 是内部 id
-        findViewById<TextView>(R.id.rowUser).findViewById<TextView>(R.id.tvLabel).text = "使用人"
-        tvUserValue = findViewById<TextView>(R.id.rowUser).findViewById(R.id.tvValue)
 
-        findViewById<TextView>(R.id.rowDept).findViewById<TextView>(R.id.tvLabel).text = "使用部门"
-        tvDeptValue = findViewById<TextView>(R.id.rowDept).findViewById(R.id.tvValue)
+        btnBackTaskList.setOnClickListener {
+            val intent = Intent(this, TaskListActivity::class.java)
+            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
+            startActivity(intent)
+        }
 
-        findViewById<TextView>(R.id.rowLocation).findViewById<TextView>(R.id.tvLabel).text = "存放地点"
-        tvLocationValue = findViewById<TextView>(R.id.rowLocation).findViewById(R.id.tvValue)
-
-        findViewById<TextView>(R.id.rowDate).findViewById<TextView>(R.id.tvLabel).text = "投用日期"
-        tvStartDateValue = findViewById<TextView>(R.id.rowDate).findViewById(R.id.tvValue)
-
-        // 原 Back 按钮逻辑移除，交给 Toolbar
+        btnBack.setOnClickListener {
+            finish()
+        }
 
         btnMatched.setOnClickListener {
             currentAsset?.let { asset ->
@@ -92,20 +90,12 @@ class AssetDetailActivity : AppCompatActivity() {
             }
         }
 
+
         btnMismatch.setOnClickListener {
             currentAsset?.let { asset ->
                 AssetEditActivity.start(this, taskId, asset.code)
             }
         }
-    }
-    
-    // 处理 Toolbar 返回点击
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        if (item.itemId == android.R.id.home) {
-            finish()
-            return true
-        }
-        return super.onOptionsItemSelected(item)
     }
 
     override fun onResume() {
@@ -118,30 +108,54 @@ class AssetDetailActivity : AppCompatActivity() {
                 return
             }
             currentAsset = asset
+
+            // 进入详情时，如果状态不是“未盘点”，弹出状态提示
+            checkAssetStatusAndShowTip(asset)
+
             render(asset)
         }
     }
 
+    private fun checkAssetStatusAndShowTip(asset: Asset) {
+        if (asset.status == AssetStatus.UNCHECKED) {
+            // 未盘点资产，不需要提示
+            return
+        }
+
+        val statusText = asset.status.displayName
+        val fullText = "该资产当前状态为：$statusText"
+        val spannable = SpannableString(fullText)
+        val start = fullText.indexOf(statusText)
+        val end = start + statusText.length
+        val color = getStatusColor(asset.status)
+        spannable.setSpan(ForegroundColorSpan(color), start, end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+
+        AlertDialog.Builder(this)
+            .setMessage(spannable)
+            .setPositiveButton("确定", null)
+            .show()
+    }
+
+    private fun getStatusColor(status: AssetStatus): Int =
+        when (status) {
+            AssetStatus.UNCHECKED -> getColor(R.color.status_unchecked)
+            AssetStatus.MATCHED -> getColor(R.color.status_matched)
+            AssetStatus.MISMATCH -> getColor(R.color.status_mismatch)
+            AssetStatus.LABEL_REPRINT -> getColor(R.color.status_reprint)
+        }
+
     private fun render(asset: Asset) {
-        tvCode.text = "编码：${asset.code}"
+        tvCode.text = asset.code
+        
+        // 修改：拼接显示类别
         val categoryStr = if (asset.category.isNullOrEmpty()) "" else " (${asset.category})"
         tvName.text = "${asset.name}$categoryStr"
         
-        tvUserValue.text = asset.user.orEmpty()
-        tvDeptValue.text = asset.department.orEmpty()
-        tvLocationValue.text = asset.location.orEmpty()
-        tvStartDateValue.text = asset.startDate
-        
+        tvUser.text = asset.user.orEmpty()
+        tvDept.text = asset.department.orEmpty()
+        tvLocation.text = asset.location.orEmpty()
+        tvStartDate.text = asset.startDate
         tvStatus.text = asset.status.displayName
-        
-        val (bgColorRes, textColorRes) = when (asset.status) {
-            AssetStatus.UNCHECKED -> R.color.status_unchecked_bg to R.color.status_unchecked
-            AssetStatus.MATCHED -> R.color.status_matched_bg to R.color.status_matched
-            AssetStatus.MISMATCH -> R.color.status_mismatch_bg to R.color.status_mismatch
-            AssetStatus.LABEL_REPRINT -> R.color.status_reprint_bg to R.color.status_reprint
-        }
-        tvStatus.backgroundTintList = ContextCompat.getColorStateList(this, bgColorRes)
-        tvStatus.setTextColor(ContextCompat.getColor(this, textColorRes))
     }
 
     companion object {
