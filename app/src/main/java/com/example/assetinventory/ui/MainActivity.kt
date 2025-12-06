@@ -8,6 +8,7 @@ import android.widget.Button
 import android.widget.EditText
 import android.widget.TextView
 import android.widget.Toast
+import android.widget.CheckBox
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
@@ -28,6 +29,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var etSearch: EditText
     private lateinit var btnFilterStatus: Button
     private lateinit var recyclerView: RecyclerView
+    private lateinit var cbSelectAll: CheckBox
     private lateinit var btnInventory: Button
     private lateinit var btnPrint: Button
 
@@ -65,6 +67,7 @@ class MainActivity : AppCompatActivity() {
         etSearch = findViewById(R.id.etSearch)
         btnFilterStatus = findViewById(R.id.btnFilterStatus)
         recyclerView = findViewById(R.id.rvAssets)
+        cbSelectAll = findViewById(R.id.cbSelectAll)
         btnInventory = findViewById(R.id.btnInventory)
         btnPrint = findViewById(R.id.btnPrint)
 
@@ -95,6 +98,12 @@ class MainActivity : AppCompatActivity() {
         recyclerView.layoutManager = LinearLayoutManager(this)
         recyclerView.adapter = adapter
         recyclerView.setHasFixedSize(true)
+
+        cbSelectAll.setOnCheckedChangeListener { _, isChecked ->
+            val current = adapter.currentItems      // 当前搜索 + 筛选后的资产列表
+            current.forEach { it.selectedForPrint = isChecked }
+            adapter.update(current)                // 刷新勾选状态
+        }
 
         etSearch.addTextChangedListener(object : android.text.TextWatcher {
             override fun afterTextChanged(s: android.text.Editable?) {
@@ -176,6 +185,15 @@ class MainActivity : AppCompatActivity() {
         }
 
         adapter.update(filtered)
+
+        // 同步“全选”复选框状态：只有当当前列表非空且全部选中时才勾上
+        cbSelectAll.setOnCheckedChangeListener(null)
+        cbSelectAll.isChecked = filtered.isNotEmpty() && filtered.all { it.selectedForPrint }
+        cbSelectAll.setOnCheckedChangeListener { _, isChecked ->
+            val current = adapter.currentItems
+            current.forEach { it.selectedForPrint = isChecked }
+            adapter.update(current)
+        }
     }
 
     private fun showStatusFilterDialog() {

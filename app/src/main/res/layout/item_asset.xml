@@ -25,7 +25,7 @@
             android:orientation="vertical"
             android:layout_marginStart="8dp">
 
-            <!-- 第一部分：编码 + 名称（竖着两行） -->
+            <!-- 第一行：资产编码（加粗） -->
             <TextView
                 android:id="@+id/tvCode"
                 android:layout_width="match_parent"
@@ -34,17 +34,16 @@
                 android:textStyle="bold"
                 android:textSize="14sp" />
 
+            <!-- 第二行：资产名称（不省略、可换行） -->
             <TextView
                 android:id="@+id/tvName"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="2dp"
                 android:text="资产名称"
-                android:textSize="14sp"
-                android:ellipsize="end"
-                android:maxLines="1" />
+                android:textSize="14sp" />
 
-            <!-- 第二行：使用人 / 使用部门（正常字体） -->
+            <!-- 第三行：使用人 / 使用部门 -->
             <TextView
                 android:id="@+id/tvUserDept"
                 android:layout_width="match_parent"
@@ -53,7 +52,7 @@
                 android:text="使用人 / 使用部门"
                 android:textSize="13sp" />
 
-            <!-- 第三行：存放地点 -->
+            <!-- 第四行：存放地点 -->
             <TextView
                 android:id="@+id/tvLocation"
                 android:layout_width="match_parent"
@@ -62,7 +61,7 @@
                 android:text="存放地点"
                 android:textSize="13sp" />
 
-            <!-- 第四行：投用日期 -->
+            <!-- 第五行：投用日期 -->
             <TextView
                 android:id="@+id/tvStartDate"
                 android:layout_width="match_parent"
