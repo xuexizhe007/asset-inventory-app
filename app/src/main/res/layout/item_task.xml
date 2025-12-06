@@ -26,7 +26,8 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="4dp"
-            android:text="共 0 条资产" />
+            android:text="共 0 条资产"
+            android:textSize="13sp" />
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -37,19 +38,17 @@
 
             <Button
                 android:id="@+id/btnExportTask"
+                style="@style/TopBarButton"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:minHeight="40dp"
-                android:background="@drawable/bg_topbar_button"
                 android:text="导出" />
 
             <Button
                 android:id="@+id/btnDeleteTask"
+                style="@style/TopBarButton"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:minHeight="40dp"
                 android:layout_marginStart="10dp"
-                android:background="@drawable/bg_topbar_button"
                 android:text="删除" />
         </LinearLayout>
 
