@@ -35,12 +35,14 @@
     <color name="black">#000000</color>
     <color name="white">#FFFFFF</color>
 
-    <!-- ==================== 【关键修复】兼容旧代码的命名 ==================== -->
-    <!-- 这里将旧名字指向新颜色，解决 "resource not found" 错误 -->
+    <!-- ==================== 兼容旧代码命名 ==================== -->
     <color name="color_primary">@color/colorPrimary</color>
     <color name="color_primary_dark">@color/colorPrimaryVariant</color>
     <color name="color_secondary">@color/colorSecondary</color>
     <color name="color_secondary_dark">@color/colorSecondaryVariant</color>
+    
+    <!-- 【本次修复】补充缺少的 color_primary_light，使用极淡的蓝色 -->
+    <color name="color_primary_light">#DBEAFE</color>
     
     <!-- 防止旧布局引用 purple -->
     <color name="purple_200">@color/colorSecondary</color>

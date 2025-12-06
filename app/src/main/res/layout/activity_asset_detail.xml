@@ -87,19 +87,22 @@
                         layout="@layout/item_detail_row"
                         android:id="@+id/rowUser" />
                     
-                    <View android:layout_width="match_parent" android:layout_height="1dp" android:background="@color/dividerColor" android:layout_my="8dp"/>
+                    <!-- 修复：将 layout_my 改为 layout_marginVertical -->
+                    <View android:layout_width="match_parent" android:layout_height="1dp" android:background="@color/dividerColor" android:layout_marginVertical="8dp"/>
 
                     <include
                         layout="@layout/item_detail_row"
                         android:id="@+id/rowDept" />
 
-                    <View android:layout_width="match_parent" android:layout_height="1dp" android:background="@color/dividerColor" android:layout_my="8dp"/>
+                    <!-- 修复：将 layout_my 改为 layout_marginVertical -->
+                    <View android:layout_width="match_parent" android:layout_height="1dp" android:background="@color/dividerColor" android:layout_marginVertical="8dp"/>
 
                     <include
                         layout="@layout/item_detail_row"
                         android:id="@+id/rowLocation" />
 
-                    <View android:layout_width="match_parent" android:layout_height="1dp" android:background="@color/dividerColor" android:layout_my="8dp"/>
+                    <!-- 修复：将 layout_my 改为 layout_marginVertical -->
+                    <View android:layout_width="match_parent" android:layout_height="1dp" android:background="@color/dividerColor" android:layout_marginVertical="8dp"/>
 
                     <include
                         layout="@layout/item_detail_row"
@@ -147,7 +150,7 @@
     <Button android:id="@+id/btnBackTaskList" android:visibility="gone" android:layout_width="0dp" android:layout_height="0dp"/>
     <Button android:id="@+id/btnBack" android:visibility="gone" android:layout_width="0dp" android:layout_height="0dp"/>
 
-    <!-- 辅助显示的 TextViews，在 Kotlin 代码中动态绑定 include 的内容 -->
+    <!-- 辅助显示的 TextViews -->
     <TextView android:id="@+id/tvUser" android:visibility="gone" android:layout_width="0dp" android:layout_height="0dp"/>
     <TextView android:id="@+id/tvDept" android:visibility="gone" android:layout_width="0dp" android:layout_height="0dp"/>
     <TextView android:id="@+id/tvLocation" android:visibility="gone" android:layout_width="0dp" android:layout_height="0dp"/>
