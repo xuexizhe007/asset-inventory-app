@@ -1,6 +1,6 @@
 package com.example.assetinventory.ui
 
-import android.graphics.drawable.GradientDrawable
+import android.content.res.ColorStateList
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -47,30 +47,28 @@ class AssetAdapter(
         private val tvStatus: TextView = itemView.findViewById(R.id.tvStatus)
 
         fun bind(asset: Asset) {
-            tvCode.text = "资产编码：${asset.code}"
+            tvCode.text = asset.code
             
-            // 修改：同时显示名称和类别
             val categoryText = asset.category.orEmpty()
-            tvName.text = "资产名称：${asset.name}\n资产类别：$categoryText"
+            // 简单显示，UI已做加粗处理
+            tvName.text = "${asset.name} " + if(categoryText.isNotEmpty()) "($categoryText)" else ""
             
-            tvUserDept.text = "使用人：${asset.user.orEmpty()} / 使用部门：${asset.department.orEmpty()}"
-            tvLocation.text = "存放地点：${asset.location.orEmpty()}"
-            tvStartDate.text = "投用日期：${asset.startDate}"
+            tvUserDept.text = "${asset.user.orEmpty()} · ${asset.department.orEmpty()}"
+            tvLocation.text = asset.location.orEmpty()
+            tvStartDate.text = asset.startDate
             tvStatus.text = asset.status.displayName
 
+            // 适配新的 UI 风格：修改文字颜色和背景色，而不是 GradientDrawable
             val context = itemView.context
-            val colorRes = when (asset.status) {
-                AssetStatus.UNCHECKED -> R.color.status_unchecked
-                AssetStatus.MATCHED -> R.color.status_matched
-                AssetStatus.MISMATCH -> R.color.status_mismatch
-                AssetStatus.LABEL_REPRINT -> R.color.status_reprint
+            val (bgColorRes, textColorRes) = when (asset.status) {
+                AssetStatus.UNCHECKED -> R.color.status_unchecked_bg to R.color.status_unchecked
+                AssetStatus.MATCHED -> R.color.status_matched_bg to R.color.status_matched
+                AssetStatus.MISMATCH -> R.color.status_mismatch_bg to R.color.status_mismatch
+                AssetStatus.LABEL_REPRINT -> R.color.status_reprint_bg to R.color.status_reprint
             }
-            val bgColor = ContextCompat.getColor(context, colorRes)
-            val drawable = GradientDrawable().apply {
-                cornerRadius = 8f
-                setColor(bgColor)
-            }
-            tvStatus.background = drawable
+            
+            tvStatus.backgroundTintList = ColorStateList.valueOf(ContextCompat.getColor(context, bgColorRes))
+            tvStatus.setTextColor(ContextCompat.getColor(context, textColorRes))
 
             cbSelect.setOnCheckedChangeListener(null)
             cbSelect.isChecked = asset.selectedForPrint

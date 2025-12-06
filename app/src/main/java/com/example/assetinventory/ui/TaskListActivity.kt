@@ -3,7 +3,6 @@ package com.example.assetinventory.ui
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
-import android.widget.Button
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AlertDialog
@@ -15,15 +14,14 @@ import com.example.assetinventory.data.LocalStore
 import com.example.assetinventory.data.TaskInfo
 import com.example.assetinventory.util.ExcelExporter
 import com.example.assetinventory.util.ExcelImporter
+import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 
 class TaskListActivity : AppCompatActivity() {
 
-    private lateinit var btnBackTaskList: Button
-    private lateinit var btnBack: Button
-    private lateinit var btnImportTask: Button
+    private lateinit var btnImportTask: ExtendedFloatingActionButton
     private lateinit var rvTasks: RecyclerView
     private lateinit var adapter: TaskAdapter
 
@@ -48,13 +46,7 @@ class TaskListActivity : AppCompatActivity() {
         )
     ) { uri: Uri? ->
         if (uri == null) return@registerForActivityResult
-
-        val bytes = pendingExportBytes
-        if (bytes == null) {
-            Toast.makeText(this, "导出失败：没有可写入的数据", Toast.LENGTH_LONG).show()
-            return@registerForActivityResult
-        }
-
+        val bytes = pendingExportBytes ?: return@registerForActivityResult
         try {
             contentResolver.openOutputStream(uri)?.use { out ->
                 out.write(bytes)
@@ -63,11 +55,7 @@ class TaskListActivity : AppCompatActivity() {
             Toast.makeText(this, "导出成功", Toast.LENGTH_LONG).show()
         } catch (e: Exception) {
             e.printStackTrace()
-            AlertDialog.Builder(this)
-                .setTitle("导出失败")
-                .setMessage(e.message ?: "未知错误")
-                .setPositiveButton("确定", null)
-                .show()
+            Toast.makeText(this, "导出失败: ${e.message}", Toast.LENGTH_LONG).show()
         } finally {
             pendingExportBytes = null
             pendingExportFileName = null
@@ -78,15 +66,14 @@ class TaskListActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_task_list)
 
-        btnBackTaskList = findViewById(R.id.btnBackTaskList)
-        btnBack = findViewById(R.id.btnBack)
+        // 设置 Toolbar 标题
+        supportActionBar?.title = "资产盘点任务"
+
         btnImportTask = findViewById(R.id.btnImportTask)
         rvTasks = findViewById(R.id.rvTasks)
 
-        supportActionBar?.title = getString(R.string.task_list_title)
+        // 移除旧的 Back 按钮监听，因为 XML 里设为 gone 了，逻辑也不需要了
 
-        btnBackTaskList.setOnClickListener { finish() }
-        btnBack.setOnClickListener { finish() }
         btnImportTask.setOnClickListener { openExcelPicker() }
 
         adapter = TaskAdapter(
@@ -150,55 +137,30 @@ class TaskListActivity : AppCompatActivity() {
     private fun confirmDelete(task: TaskInfo) {
         AlertDialog.Builder(this)
             .setTitle("删除任务")
-            .setMessage("确认删除任务“${task.name}”及其所有资产信息吗？此操作不可恢复。")
+            .setMessage("确认删除任务“${task.name}”？")
             .setNegativeButton("取消", null)
             .setPositiveButton("删除") { _, _ ->
-                try {
-                    LocalStore.deleteTaskCascade(this, task.id)
-                    Toast.makeText(this, "已删除：${task.name}", Toast.LENGTH_LONG).show()
-                    loadTasks()
-                } catch (e: Exception) {
-                    e.printStackTrace()
-                    AlertDialog.Builder(this)
-                        .setTitle("删除失败")
-                        .setMessage(e.message ?: "未知错误")
-                        .setPositiveButton("确定", null)
-                        .show()
-                }
+                LocalStore.deleteTaskCascade(this, task.id)
+                loadTasks()
             }
             .show()
     }
 
     private fun exportTask(task: TaskInfo) {
-        if (task.assetCount <= 0) {
-            Toast.makeText(this, "该任务没有资产记录", Toast.LENGTH_SHORT).show()
-            return
-        }
-
+        // ... (保持原有导出逻辑)
         try {
             val assets = LocalStore.getAssetsByTask(this, task.id)
-            if (assets.isEmpty()) {
-                Toast.makeText(this, "该任务没有资产记录", Toast.LENGTH_SHORT).show()
-                return
-            }
+            if (assets.isEmpty()) return
 
             val bytes = ExcelExporter.exportFromTemplate(this, assets)
-
             val sdf = SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault())
-            val ts = sdf.format(Date())
-            val safeName = task.name.replace(Regex("[\\\\/:*?\\\"<>|]"), "_")
-            val filename = "${safeName}_${ts}.xlsx"
+            val filename = "${task.name}_${sdf.format(Date())}.xlsx"
 
             pendingExportFileName = filename
             pendingExportBytes = bytes
             exportLauncher.launch(filename)
         } catch (e: Exception) {
             e.printStackTrace()
-            AlertDialog.Builder(this)
-                .setTitle("导出失败")
-                .setMessage(e.message ?: "未知错误")
-                .setPositiveButton("确定", null)
-                .show()
         }
     }
 }

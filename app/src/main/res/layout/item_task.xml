@@ -1,82 +1,74 @@
 <?xml version="1.0" encoding="utf-8"?>
 <com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    style="@style/CardViewStyle"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_margin="8dp"
-    app:cardUseCompatPadding="true"
-    app:cardElevation="2dp">
+    android:clickable="true"
+    android:focusable="true"
+    android:foreground="?android:attr/selectableItemBackground">
 
-    <LinearLayout
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:padding="12dp">
+        android:padding="16dp">
 
         <TextView
-            android:id="@+id/tvTaskTitle"
-            android:layout_width="match_parent"
+            android:id="@+id/tvTaskName"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
+            android:text="2023年度固定资产盘点"
+            android:textColor="@color/textPrimary"
+            android:textSize="18sp"
             android:textStyle="bold"
-            android:textSize="16sp"
-            android:text="任务名称" />
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
 
-        <!-- 原来我给了 tvTaskSub，这里保留，并新增适配器需要的 tvTaskInfo -->
-        <TextView
-            android:id="@+id/tvTaskSub"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="2dp"
-            android:text="共 0 项资产" />
-
-        <!-- 适配器里引用的 tvTaskInfo（新增） -->
         <TextView
             android:id="@+id/tvTaskInfo"
-            android:layout_width="match_parent"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginTop="2dp"
-            android:text="计划时间 / 创建人 等信息"
-            android:textColor="#6B7280"
-            android:textSize="13sp" />
+            android:layout_marginTop="8dp"
+            android:text="导入时间：2023-10-01 | 共 120 条"
+            android:textColor="@color/textSecondary"
+            android:textSize="13sp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/tvTaskName" />
+
+        <View
+            android:id="@+id/divider"
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_marginTop="12dp"
+            android:background="@color/dividerColor"
+            app:layout_constraintTop_toBottomOf="@id/tvTaskInfo" />
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
-            android:orientation="horizontal">
-
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/btnOpenTask"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                app:icon="@android:drawable/ic_menu_view"
-                app:iconPadding="8dp"
-                app:iconGravity="textStart"
-                android:text="打开" />
+            android:gravity="end"
+            android:orientation="horizontal"
+            app:layout_constraintTop_toBottomOf="@id/divider">
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnExportTask"
-                android:layout_width="0dp"
+                style="@style/Widget.MaterialComponents.Button.TextButton"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="8dp"
-                android:layout_weight="1"
-                app:icon="@android:drawable/ic_menu_save"
-                app:iconPadding="8dp"
-                app:iconGravity="textStart"
-                android:text="导出" />
+                android:text="导出表格"
+                android:textColor="@color/colorPrimary" />
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnDeleteTask"
-                style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                style="@style/Widget.MaterialComponents.Button.TextButton"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="8dp"
-                app:icon="@android:drawable/ic_menu_delete"
-                app:iconPadding="8dp"
-                app:iconGravity="textStart"
-                android:text="删除" />
+                android:text="删除"
+                android:textColor="@color/status_mismatch" />
         </LinearLayout>
 
-    </LinearLayout>
+    </androidx.constraintlayout.widget.ConstraintLayout>
 </com.google.android.material.card.MaterialCardView>
