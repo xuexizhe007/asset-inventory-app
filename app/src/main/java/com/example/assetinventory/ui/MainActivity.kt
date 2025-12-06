@@ -4,11 +4,14 @@ import android.Manifest
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Bundle
+import android.text.Editable
+import android.text.TextWatcher
+import android.view.View
 import android.widget.Button
+import android.widget.CheckBox
 import android.widget.EditText
 import android.widget.TextView
 import android.widget.Toast
-import android.widget.CheckBox
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
@@ -29,6 +32,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var etSearch: EditText
     private lateinit var btnFilterStatus: Button
     private lateinit var recyclerView: RecyclerView
+    private lateinit var layoutEmptyState: View
     private lateinit var cbSelectAll: CheckBox
     private lateinit var btnInventory: Button
     private lateinit var btnPrint: Button
@@ -50,6 +54,7 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
+        // 读取任务信息
         taskId = intent.getLongExtra(EXTRA_TASK_ID, -1L)
         taskName = intent.getStringExtra(EXTRA_TASK_NAME) ?: ""
 
@@ -66,15 +71,16 @@ class MainActivity : AppCompatActivity() {
             return
         }
 
-        // 如果你在主题里还有 ActionBar，这个标题也会显示任务名（上面的自定义 Toolbar 仍然有效）
         supportActionBar?.title = taskName
 
+        // 绑定视图
         btnBackTaskList = findViewById(R.id.btnBackTaskList)
         btnBack = findViewById(R.id.btnBack)
         tvTaskName = findViewById(R.id.tvTaskName)
         etSearch = findViewById(R.id.etSearch)
         btnFilterStatus = findViewById(R.id.btnFilterStatus)
         recyclerView = findViewById(R.id.rvAssets)
+        layoutEmptyState = findViewById(R.id.layoutEmptyState)
         cbSelectAll = findViewById(R.id.cbSelectAll)
         btnInventory = findViewById(R.id.btnInventory)
         btnPrint = findViewById(R.id.btnPrint)
@@ -85,8 +91,13 @@ class MainActivity : AppCompatActivity() {
         tvSummaryMismatch = findViewById(R.id.tvSummaryMismatch)
         tvSummaryUnchecked = findViewById(R.id.tvSummaryUnchecked)
 
-        tvTaskName.text = "当前任务：$taskName"
+        tvTaskName.text = if (taskName.isNotBlank()) {
+            "当前任务：$taskName"
+        } else {
+            "当前任务："
+        }
 
+        // 顶部按钮
         btnBackTaskList.setOnClickListener {
             val intent = Intent(this, TaskListActivity::class.java)
             intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
@@ -97,6 +108,7 @@ class MainActivity : AppCompatActivity() {
             finish()
         }
 
+        // 列表 & 适配器
         adapter = AssetAdapter(emptyList()) { asset ->
             val intent = Intent(this, AssetDetailActivity::class.java)
             intent.putExtra(AssetDetailActivity.EXTRA_TASK_ID, taskId)
@@ -107,24 +119,29 @@ class MainActivity : AppCompatActivity() {
         recyclerView.adapter = adapter
         recyclerView.setHasFixedSize(true)
 
+        // 全选当前列表
         cbSelectAll.setOnCheckedChangeListener { _, isChecked ->
-            val current = adapter.currentItems      // 当前搜索 + 筛选后的资产列表
+            val current = adapter.currentItems
             current.forEach { it.selectedForPrint = isChecked }
-            adapter.update(current)                // 刷新勾选状态
+            adapter.update(current)
         }
 
-        etSearch.addTextChangedListener(object : android.text.TextWatcher {
-            override fun afterTextChanged(s: android.text.Editable?) {
+        // 搜索
+        etSearch.addTextChangedListener(object : TextWatcher {
+            override fun afterTextChanged(s: Editable?) {
                 applyFilter()
             }
+
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
         })
 
+        // 状态筛选
         btnFilterStatus.setOnClickListener {
             showStatusFilterDialog()
         }
 
+        // 开始盘点（扫码）
         btnInventory.setOnClickListener {
             if (allAssets.isEmpty()) {
                 Toast.makeText(this, "该任务没有资产，请先导入任务", Toast.LENGTH_SHORT).show()
@@ -133,12 +150,17 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
+        // 打印标签（仅当前列表选中项）
         btnPrint.setOnClickListener {
             if (allAssets.isEmpty()) {
                 Toast.makeText(this, "该任务没有资产，请先导入任务", Toast.LENGTH_SHORT).show()
             } else {
                 val selected = adapter.currentItems.filter { it.selectedForPrint }
-                PdfGenerator.generateLabelsPdf(this, taskName, selected)
+                if (selected.isEmpty()) {
+                    Toast.makeText(this, "请先勾选需要打印标签的资产", Toast.LENGTH_SHORT).show()
+                } else {
+                    PdfGenerator.generateLabelsPdf(this, taskName, selected)
+                }
             }
         }
 
@@ -194,6 +216,15 @@ class MainActivity : AppCompatActivity() {
 
         adapter.update(filtered)
 
+        // 空状态显示控制
+        if (filtered.isEmpty()) {
+            recyclerView.visibility = View.GONE
+            layoutEmptyState.visibility = View.VISIBLE
+        } else {
+            recyclerView.visibility = View.VISIBLE
+            layoutEmptyState.visibility = View.GONE
+        }
+
         // 同步“全选”复选框状态：只有当当前列表非空且全部选中时才勾上
         cbSelectAll.setOnCheckedChangeListener(null)
         cbSelectAll.isChecked = filtered.isNotEmpty() && filtered.all { it.selectedForPrint }
@@ -231,7 +262,8 @@ class MainActivity : AppCompatActivity() {
 
     private fun checkCameraPermissionAndStartScan() {
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA)
-            == PackageManager.PERMISSION_GRANTED) {
+            == PackageManager.PERMISSION_GRANTED
+        ) {
             startQrScan()
         } else {
             ActivityCompat.requestPermissions(

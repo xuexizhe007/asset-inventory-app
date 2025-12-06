@@ -10,77 +10,93 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:padding="8dp">
+        android:orientation="horizontal">
 
-        <CheckBox
-            android:id="@+id/cbSelect"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content" />
+        <!-- 左侧状态色条 -->
+        <View
+            android:id="@+id/viewStatusBar"
+            android:layout_width="4dp"
+            android:layout_height="match_parent"
+            android:background="@color/status_unchecked" />
 
+        <!-- 内容区域 -->
         <LinearLayout
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:orientation="vertical"
-            android:layout_marginStart="8dp">
+            android:orientation="horizontal"
+            android:padding="8dp">
 
-            <!-- 第一行：资产编码（加粗） -->
-            <TextView
-                android:id="@+id/tvCode"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="资产编码"
-                android:textStyle="bold"
-                android:textSize="14sp" />
+            <CheckBox
+                android:id="@+id/cbSelect"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
 
-            <!-- 第二行：资产名称（不省略、可换行） -->
-            <TextView
-                android:id="@+id/tvName"
-                android:layout_width="match_parent"
+            <LinearLayout
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="2dp"
-                android:text="资产名称"
-                android:textSize="14sp" />
+                android:layout_weight="1"
+                android:orientation="vertical"
+                android:layout_marginStart="8dp">
 
-            <!-- 第三行：使用人 / 使用部门 -->
-            <TextView
-                android:id="@+id/tvUserDept"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="4dp"
-                android:text="使用人 / 使用部门"
-                android:textSize="13sp" />
+                <!-- 第一行：资产编码（加粗） -->
+                <TextView
+                    android:id="@+id/tvCode"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="资产编码"
+                    android:textStyle="bold"
+                    android:textSize="14sp" />
 
-            <!-- 第四行：存放地点 -->
-            <TextView
-                android:id="@+id/tvLocation"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="2dp"
-                android:text="存放地点"
-                android:textSize="13sp" />
+                <!-- 第二行：资产名称（不省略、可换行） -->
+                <TextView
+                    android:id="@+id/tvName"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="2dp"
+                    android:text="资产名称"
+                    android:textSize="14sp" />
 
-            <!-- 第五行：投用日期 -->
+                <!-- 第三行：使用人 / 使用部门 -->
+                <TextView
+                    android:id="@+id/tvUserDept"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:text="使用人 / 使用部门"
+                    android:textSize="13sp" />
+
+                <!-- 第四行：存放地点 -->
+                <TextView
+                    android:id="@+id/tvLocation"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="2dp"
+                    android:text="存放地点"
+                    android:textSize="13sp" />
+
+                <!-- 第五行：投用日期 -->
+                <TextView
+                    android:id="@+id/tvStartDate"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="2dp"
+                    android:text="投用日期"
+                    android:textSize="13sp" />
+            </LinearLayout>
+
             <TextView
-                android:id="@+id/tvStartDate"
-                android:layout_width="match_parent"
+                android:id="@+id/tvStatus"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="2dp"
-                android:text="投用日期"
-                android:textSize="13sp" />
+                android:paddingLeft="8dp"
+                android:paddingRight="8dp"
+                android:paddingTop="4dp"
+                android:paddingBottom="4dp"
+                android:text="● 未盘点"
+                android:textSize="12sp"
+                android:textColor="@android:color/white" />
         </LinearLayout>
-
-        <TextView
-            android:id="@+id/tvStatus"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:paddingLeft="8dp"
-            android:paddingRight="8dp"
-            android:paddingTop="4dp"
-            android:paddingBottom="4dp"
-            android:text="未盘点"
-            android:textColor="@android:color/white" />
     </LinearLayout>
 
 </androidx.cardview.widget.CardView>
