@@ -21,12 +21,23 @@
             android:textSize="16sp"
             android:text="任务名称" />
 
+        <!-- 原来我给了 tvTaskSub，这里保留，并新增适配器需要的 tvTaskInfo -->
         <TextView
             android:id="@+id/tvTaskSub"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="2dp"
             android:text="共 0 项资产" />
+
+        <!-- 适配器里引用的 tvTaskInfo（新增） -->
+        <TextView
+            android:id="@+id/tvTaskInfo"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="2dp"
+            android:text="计划时间 / 创建人 等信息"
+            android:textColor="#6B7280"
+            android:textSize="13sp" />
 
         <LinearLayout
             android:layout_width="match_parent"
