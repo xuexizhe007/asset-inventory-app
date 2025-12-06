@@ -1,140 +1,192 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:card_view="http://schemas.android.com/apk/res-auto"
     android:id="@+id/rootLayout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:padding="12dp">
+    android:background="@color/color_primary_light"
+    android:padding="8dp">
 
-    <LinearLayout
-        android:id="@+id/layoutTopBar"
+    <androidx.cardview.widget.CardView
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal">
+        android:layout_height="match_parent"
+        android:layout_margin="4dp"
+        card_view:cardCornerRadius="12dp"
+        card_view:cardElevation="4dp">
 
-        <Button
-            android:id="@+id/btnBackTaskList"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:minHeight="40dp"
-            android:text="任务列表" />
-
-        <Button
-            android:id="@+id/btnBack"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:minHeight="40dp"
-            android:layout_marginStart="8dp"
-            android:text="返回" />
-    </LinearLayout>
-
-    <TextView
-        android:id="@+id/tvTaskName"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
-        android:text="当前任务："
-        android:textSize="16sp"
-        android:textStyle="bold" />
-
-    <!-- 统计信息 -->
-    <LinearLayout
-        android:id="@+id/layoutSummary"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
-        android:orientation="vertical">
-
-        <TextView
-            android:id="@+id/tvSummaryTotal"
+        <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="总资产：0" />
+            android:layout_height="match_parent"
+            android:orientation="vertical"
+            android:padding="12dp">
 
-        <TextView
-            android:id="@+id/tvSummaryMatched"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="相符：0" />
+            <!-- 顶部返回 / 任务列表 -->
+            <LinearLayout
+                android:id="@+id/layoutTopBar"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical">
 
-        <TextView
-            android:id="@+id/tvSummaryReprint"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="补打标签：0" />
+                <Button
+                    android:id="@+id/btnBackTaskList"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:minHeight="40dp"
+                    android:background="@drawable/bg_topbar_button"
+                    android:text="任务列表" />
 
-        <TextView
-            android:id="@+id/tvSummaryMismatch"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="不相符：0" />
+                <Button
+                    android:id="@+id/btnBack"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:minHeight="40dp"
+                    android:layout_marginStart="8dp"
+                    android:background="@drawable/bg_topbar_button"
+                    android:text="返回" />
+            </LinearLayout>
 
-        <TextView
-            android:id="@+id/tvSummaryUnchecked"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="未盘点：0" />
-    </LinearLayout>
+            <!-- 任务名称 -->
+            <TextView
+                android:id="@+id/tvTaskName"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:text="当前任务："
+                android:textSize="18sp"
+                android:textStyle="bold" />
 
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
-        android:orientation="horizontal">
+            <!-- 统计信息 -->
+            <LinearLayout
+                android:id="@+id/layoutSummary"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:orientation="vertical"
+                android:background="@drawable/bg_summary_bar"
+                android:padding="12dp">
 
-        <EditText
-            android:id="@+id/etSearch"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:hint="@string/search_hint"
-            android:imeOptions="actionSearch"
-            android:singleLine="true" />
+                <TextView
+                    android:id="@+id/tvSummaryTotal"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="总资产：0"
+                    android:textStyle="bold" />
 
-        <Button
-            android:id="@+id/btnFilterStatus"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:minHeight="48dp"
-            android:layout_marginStart="8dp"
-            android:text="@string/filter_status" />
-    </LinearLayout>
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:orientation="horizontal">
 
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/rvAssets"
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1"
-        android:layout_marginTop="8dp"
-        android:overScrollMode="never" />
+                    <TextView
+                        android:id="@+id/tvSummaryMatched"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="相符：0" />
 
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:gravity="end"
-        android:orientation="horizontal"
-        android:layout_marginTop="8dp">
+                    <TextView
+                        android:id="@+id/tvSummaryReprint"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="补打标签：0" />
+                </LinearLayout>
 
-        <Button
-            android:id="@+id/btnInventory"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:minHeight="56dp"
-            android:paddingTop="12dp"
-            android:paddingBottom="12dp"
-            android:layout_weight="1"
-            android:text="@string/btn_inventory" />
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="2dp"
+                    android:orientation="horizontal">
 
-        <Button
-            android:id="@+id/btnPrint"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:minHeight="56dp"
-            android:paddingTop="12dp"
-            android:paddingBottom="12dp"
-            android:layout_marginStart="8dp"
-            android:layout_weight="1"
-            android:text="@string/btn_print" />
-    </LinearLayout>
+                    <TextView
+                        android:id="@+id/tvSummaryMismatch"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="不相符：0" />
+
+                    <TextView
+                        android:id="@+id/tvSummaryUnchecked"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="未盘点：0" />
+                </LinearLayout>
+            </LinearLayout>
+
+            <!-- 搜索 + 状态筛选 -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:orientation="horizontal"
+                android:gravity="center_vertical">
+
+                <EditText
+                    android:id="@+id/etSearch"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:hint="@string/search_hint"
+                    android:imeOptions="actionSearch"
+                    android:singleLine="true" />
+
+                <Button
+                    android:id="@+id/btnFilterStatus"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:minHeight="40dp"
+                    android:layout_marginStart="8dp"
+                    android:background="@drawable/bg_topbar_button"
+                    android:text="@string/filter_status" />
+            </LinearLayout>
+
+            <!-- 资产列表 -->
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/rvAssets"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1"
+                android:layout_marginTop="8dp"
+                android:overScrollMode="never" />
+
+            <!-- 底部操作按钮 -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:orientation="horizontal">
+
+                <Button
+                    android:id="@+id/btnInventory"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:minHeight="56dp"
+                    android:layout_weight="1"
+                    android:paddingTop="12dp"
+                    android:paddingBottom="12dp"
+                    android:background="@drawable/bg_primary_button"
+                    android:text="@string/btn_inventory"
+                    android:textColor="@android:color/white" />
+
+                <Button
+                    android:id="@+id/btnPrint"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:minHeight="56dp"
+                    android:layout_marginStart="8dp"
+                    android:layout_weight="1"
+                    android:paddingTop="12dp"
+                    android:paddingBottom="12dp"
+                    android:background="@drawable/bg_primary_button"
+                    android:text="@string/btn_print"
+                    android:textColor="@android:color/white" />
+            </LinearLayout>
+
+        </LinearLayout>
+    </androidx.cardview.widget.CardView>
 
 </LinearLayout>

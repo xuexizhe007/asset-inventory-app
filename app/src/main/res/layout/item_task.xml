@@ -4,7 +4,7 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_margin="6dp"
-    card_view:cardCornerRadius="8dp"
+    card_view:cardCornerRadius="12dp"
     card_view:cardElevation="2dp">
 
     <LinearLayout
@@ -31,7 +31,7 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="10dp"
+            android:layout_marginTop="8dp"
             android:gravity="end"
             android:orientation="horizontal">
 
@@ -39,13 +39,17 @@
                 android:id="@+id/btnExportTask"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:minHeight="40dp"
+                android:background="@drawable/bg_topbar_button"
                 android:text="导出" />
 
             <Button
                 android:id="@+id/btnDeleteTask"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:minHeight="40dp"
                 android:layout_marginStart="10dp"
+                android:background="@drawable/bg_topbar_button"
                 android:text="删除" />
         </LinearLayout>
 
