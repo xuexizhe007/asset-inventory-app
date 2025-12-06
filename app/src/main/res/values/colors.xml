@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <!-- ==================== 新设计规范命名 (驼峰) ==================== -->
     <!-- 主色调：商务蓝 -->
     <color name="colorPrimary">#2563EB</color>
     <color name="colorPrimaryVariant">#1E40AF</color>
@@ -11,22 +12,21 @@
     <color name="colorOnSecondary">#FFFFFF</color>
 
     <!-- 背景色 -->
-    <color name="backgroundColor">#F3F4F6</color> <!-- 浅灰背景，不刺眼 -->
+    <color name="backgroundColor">#F3F4F6</color>
     <color name="surfaceColor">#FFFFFF</color>
     <color name="dividerColor">#E5E7EB</color>
 
     <!-- 文本颜色 -->
-    <color name="textPrimary">#1F2937</color> <!-- 深灰接近黑 -->
-    <color name="textSecondary">#6B7280</color> <!-- 中灰 -->
+    <color name="textPrimary">#1F2937</color>
+    <color name="textSecondary">#6B7280</color>
     <color name="textHint">#9CA3AF</color>
 
-    <!-- 状态颜色：更柔和的色调 -->
-    <color name="status_unchecked">#9CA3AF</color> <!-- 灰 -->
-    <color name="status_matched">#10B981</color>   <!-- 绿 -->
-    <color name="status_mismatch">#EF4444</color>  <!-- 红 -->
-    <color name="status_reprint">#F59E0B</color>   <!-- 橙 -->
+    <!-- 状态颜色 -->
+    <color name="status_unchecked">#9CA3AF</color>
+    <color name="status_matched">#10B981</color>
+    <color name="status_mismatch">#EF4444</color>
+    <color name="status_reprint">#F59E0B</color>
     
-    <!-- 对应状态的浅色背景（用于标签） -->
     <color name="status_unchecked_bg">#F3F4F6</color>
     <color name="status_matched_bg">#D1FAE5</color>
     <color name="status_mismatch_bg">#FEE2E2</color>
@@ -34,4 +34,18 @@
 
     <color name="black">#000000</color>
     <color name="white">#FFFFFF</color>
+
+    <!-- ==================== 【关键修复】兼容旧代码的命名 ==================== -->
+    <!-- 这里将旧名字指向新颜色，解决 "resource not found" 错误 -->
+    <color name="color_primary">@color/colorPrimary</color>
+    <color name="color_primary_dark">@color/colorPrimaryVariant</color>
+    <color name="color_secondary">@color/colorSecondary</color>
+    <color name="color_secondary_dark">@color/colorSecondaryVariant</color>
+    
+    <!-- 防止旧布局引用 purple -->
+    <color name="purple_200">@color/colorSecondary</color>
+    <color name="purple_500">@color/colorPrimary</color>
+    <color name="purple_700">@color/colorPrimaryVariant</color>
+    <color name="teal_200">@color/colorSecondary</color>
+    <color name="teal_700">@color/colorSecondaryVariant</color>
 </resources>
