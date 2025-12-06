@@ -8,7 +8,6 @@ import android.widget.EditText
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
-import com.example.assetinventory.ui.MainActivity
 import com.example.assetinventory.R
 import com.example.assetinventory.data.LocalStore
 import com.example.assetinventory.model.Asset
@@ -91,11 +90,20 @@ class AssetEditActivity : AppCompatActivity() {
             Toast.makeText(this, "修改已保存，状态已设为：不相符", Toast.LENGTH_SHORT).show()
 
             // 修改完成后返回资产列表页
-            val intent = Intent(this, MainActivity::class.java)
-            intent.putExtra(MainActivity.EXTRA_TASK_ID, taskId)
-            intent.putExtra(MainActivity.EXTRA_TASK_NAME, "")
-            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
-            startActivity(intent)
+            // 关键修复：不再把任务名称写成空字符串，而是继承原有的所有 extras
+            val mainIntent = Intent(this, MainActivity::class.java)
+
+            // 继承当前 Intent 携带的所有参数（包括任务名称），避免丢失
+            this.intent.extras?.let { extras ->
+                mainIntent.putExtras(extras)
+            }
+
+            // 确保任务 ID 正确（用最新的 taskId 覆盖）
+            mainIntent.putExtra(MainActivity.EXTRA_TASK_ID, taskId)
+
+            // 不再覆盖 EXTRA_TASK_NAME，保持原值
+            mainIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
+            startActivity(mainIntent)
 
             finish()
         }
@@ -110,11 +118,11 @@ class AssetEditActivity : AppCompatActivity() {
         }
         currentAsset = asset
         tvCode.text = "资产编码：${asset.code}"
-        
-        // 修改：拼接显示类别
+
+        // 拼接显示类别：名称 + 换行 + 类别（如果有）
         val categoryStr = if (asset.category.isNullOrEmpty()) "" else " \n资产类别：${asset.category}"
         tvName.text = "资产名称：${asset.name}$categoryStr"
-        
+
         tvStartDate.text = "投用日期：${asset.startDate}"
         etUser.setText(asset.user.orEmpty())
         etDept.setText(asset.department.orEmpty())

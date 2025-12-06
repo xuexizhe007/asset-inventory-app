@@ -59,6 +59,7 @@ class MainActivity : AppCompatActivity() {
             return
         }
 
+        // 如果你在主题里还有 ActionBar，这个标题也会显示任务名（上面的自定义 Toolbar 仍然有效）
         supportActionBar?.title = taskName
 
         btnBackTaskList = findViewById(R.id.btnBackTaskList)

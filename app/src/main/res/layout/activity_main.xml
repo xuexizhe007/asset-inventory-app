@@ -94,27 +94,44 @@
                         android:text="返回" />
                 </LinearLayout>
 
-                <!-- 当前任务名称（标题样式） -->
-                <TextView
-                    android:id="@+id/tvTaskName"
+                <!-- 当前任务 + 全选当前列表（带背景条） -->
+                <LinearLayout
+                    android:id="@+id/layoutTaskHeader"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="12dp"
-                    android:text="当前任务："
-                    android:textSize="20sp"
-                    android:textStyle="bold"
-                    android:lineSpacingExtra="2dp"
-                    android:maxLines="2" />
+                    android:background="@drawable/bg_summary_bar"
+                    android:padding="8dp"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical">
 
-                <!-- 统计信息：一行五项，中间竖线分割 -->
+                    <TextView
+                        android:id="@+id/tvTaskName"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="当前任务："
+                        android:textSize="18sp"
+                        android:textStyle="bold"
+                        android:lineSpacingExtra="2dp"
+                        android:maxLines="2" />
+
+                    <CheckBox
+                        android:id="@+id/cbSelectAll"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="全选当前列表" />
+                </LinearLayout>
+
+                <!-- 统计信息：一行五项，中间竖线分割，文本居中 -->
                 <LinearLayout
                     android:id="@+id/layoutSummary"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="12dp"
+                    android:layout_marginTop="8dp"
                     android:orientation="horizontal"
                     android:background="@drawable/bg_summary_bar"
-                    android:padding="12dp"
+                    android:padding="8dp"
                     android:gravity="center_vertical">
 
                     <TextView
@@ -124,11 +141,12 @@
                         android:layout_weight="1"
                         android:text="总资产：0"
                         android:textStyle="bold"
-                        android:textSize="14sp" />
+                        android:textSize="14sp"
+                        android:gravity="center" />
 
                     <View
                         android:layout_width="1dp"
-                        android:layout_height="16dp"
+                        android:layout_height="18dp"
                         android:layout_marginStart="4dp"
                         android:layout_marginEnd="4dp"
                         android:background="#33000000" />
@@ -139,11 +157,12 @@
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
                         android:text="相符：0"
-                        android:textSize="14sp" />
+                        android:textSize="14sp"
+                        android:gravity="center" />
 
                     <View
                         android:layout_width="1dp"
-                        android:layout_height="16dp"
+                        android:layout_height="18dp"
                         android:layout_marginStart="4dp"
                         android:layout_marginEnd="4dp"
                         android:background="#33000000" />
@@ -154,11 +173,12 @@
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
                         android:text="补打标签：0"
-                        android:textSize="14sp" />
+                        android:textSize="14sp"
+                        android:gravity="center" />
 
                     <View
                         android:layout_width="1dp"
-                        android:layout_height="16dp"
+                        android:layout_height="18dp"
                         android:layout_marginStart="4dp"
                         android:layout_marginEnd="4dp"
                         android:background="#33000000" />
@@ -169,11 +189,12 @@
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
                         android:text="不相符：0"
-                        android:textSize="14sp" />
+                        android:textSize="14sp"
+                        android:gravity="center" />
 
                     <View
                         android:layout_width="1dp"
-                        android:layout_height="16dp"
+                        android:layout_height="18dp"
                         android:layout_marginStart="4dp"
                         android:layout_marginEnd="4dp"
                         android:background="#33000000" />
@@ -184,7 +205,8 @@
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
                         android:text="未盘点：0"
-                        android:textSize="14sp" />
+                        android:textSize="14sp"
+                        android:gravity="center" />
                 </LinearLayout>
 
                 <!-- 盘点状态说明 Legend -->
@@ -296,21 +318,6 @@
                         android:layout_height="wrap_content"
                         android:layout_marginStart="8dp"
                         android:text="@string/filter_status" />
-                </LinearLayout>
-
-                <!-- 全选当前列表 -->
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="4dp"
-                    android:gravity="end"
-                    android:orientation="horizontal">
-
-                    <CheckBox
-                        android:id="@+id/cbSelectAll"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="全选当前列表" />
                 </LinearLayout>
 
                 <!-- 资产列表 -->
