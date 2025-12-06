@@ -25,33 +25,26 @@
             android:orientation="vertical"
             android:layout_marginStart="8dp">
 
-            <!-- 第一行：资产编码 + 名称 -->
-            <LinearLayout
+            <!-- 第一部分：编码 + 名称（竖着两行） -->
+            <TextView
+                android:id="@+id/tvCode"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal">
+                android:text="资产编码"
+                android:textStyle="bold"
+                android:textSize="14sp" />
 
-                <TextView
-                    android:id="@+id/tvCode"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="资产编码"
-                    android:textSize="12sp" />
+            <TextView
+                android:id="@+id/tvName"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="2dp"
+                android:text="资产名称"
+                android:textSize="14sp"
+                android:ellipsize="end"
+                android:maxLines="1" />
 
-                <TextView
-                    android:id="@+id/tvName"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:layout_marginStart="12dp"
-                    android:text="资产名称"
-                    android:textSize="16sp"
-                    android:textStyle="bold"
-                    android:ellipsize="end"
-                    android:maxLines="1" />
-            </LinearLayout>
-
-            <!-- 第二行：使用人 / 使用部门 -->
+            <!-- 第二行：使用人 / 使用部门（正常字体） -->
             <TextView
                 android:id="@+id/tvUserDept"
                 android:layout_width="match_parent"

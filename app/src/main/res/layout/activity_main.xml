@@ -94,17 +94,19 @@
                         android:text="返回" />
                 </LinearLayout>
 
-                <!-- 当前任务名称 -->
+                <!-- 当前任务名称（重新设计样式） -->
                 <TextView
                     android:id="@+id/tvTaskName"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="12dp"
                     android:text="当前任务："
-                    android:textSize="18sp"
-                    android:textStyle="bold" />
+                    android:textSize="20sp"
+                    android:textStyle="bold"
+                    android:lineSpacingExtra="2dp"
+                    android:maxLines="2" />
 
-                <!-- 统计信息 -->
+                <!-- 统计信息：总资产 + 相符在一行，其他在下一行 -->
                 <LinearLayout
                     android:id="@+id/layoutSummary"
                     android:layout_width="match_parent"
@@ -114,13 +116,31 @@
                     android:background="@drawable/bg_summary_bar"
                     android:padding="12dp">
 
-                    <TextView
-                        android:id="@+id/tvSummaryTotal"
+                    <!-- 第一行：总资产 + 相符 -->
+                    <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="总资产：0"
-                        android:textStyle="bold" />
+                        android:orientation="horizontal">
 
+                        <TextView
+                            android:id="@+id/tvSummaryTotal"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="总资产：0"
+                            android:textStyle="bold"
+                            android:textSize="14sp" />
+
+                        <TextView
+                            android:id="@+id/tvSummaryMatched"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="相符：0"
+                            android:textSize="14sp" />
+                    </LinearLayout>
+
+                    <!-- 第二行：不相符 + 补打标签 + 未盘点 -->
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
@@ -128,39 +148,28 @@
                         android:orientation="horizontal">
 
                         <TextView
-                            android:id="@+id/tvSummaryMatched"
+                            android:id="@+id/tvSummaryMismatch"
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
-                            android:text="相符：0" />
+                            android:text="不相符：0"
+                            android:textSize="13sp" />
 
                         <TextView
                             android:id="@+id/tvSummaryReprint"
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
-                            android:text="补打标签：0" />
-                    </LinearLayout>
-
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="2dp"
-                        android:orientation="horizontal">
-
-                        <TextView
-                            android:id="@+id/tvSummaryMismatch"
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:text="不相符：0" />
+                            android:text="补打标签：0"
+                            android:textSize="13sp" />
 
                         <TextView
                             android:id="@+id/tvSummaryUnchecked"
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
-                            android:text="未盘点：0" />
+                            android:text="未盘点：0"
+                            android:textSize="13sp" />
                     </LinearLayout>
                 </LinearLayout>
 
