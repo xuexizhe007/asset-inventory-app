@@ -1,140 +1,228 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.coordinatorlayout.widget.CoordinatorLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/rootLayout"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:padding="12dp">
+    android:layout_height="match_parent">
 
-    <LinearLayout
-        android:id="@+id/layoutTopBar"
+    <com.google.android.material.appbar.AppBarLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal">
+        app:liftOnScroll="true">
 
-        <Button
-            android:id="@+id/btnBackTaskList"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:minHeight="40dp"
-            android:text="任务列表" />
-
-        <Button
-            android:id="@+id/btnBack"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:minHeight="40dp"
-            android:layout_marginStart="8dp"
-            android:text="返回" />
-    </LinearLayout>
-
-    <TextView
-        android:id="@+id/tvTaskName"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
-        android:text="当前任务："
-        android:textSize="16sp"
-        android:textStyle="bold" />
-
-    <!-- 统计信息 -->
-    <LinearLayout
-        android:id="@+id/layoutSummary"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
-        android:orientation="vertical">
-
-        <TextView
-            android:id="@+id/tvSummaryTotal"
+        <com.google.android.material.appbar.MaterialToolbar
+            android:id="@+id/layoutTopBar"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="总资产：0" />
+            app:title="@string/app_name">
 
-        <TextView
-            android:id="@+id/tvSummaryMatched"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="相符：0" />
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnBackTaskList"
+                style="@style/Widget.MaterialComponents.Button.Icon"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:icon="@android:drawable/ic_menu_sort_by_size"
+                android:text="任务列表"/>
+        </com.google.android.material.appbar.MaterialToolbar>
 
-        <TextView
-            android:id="@+id/tvSummaryReprint"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="补打标签：0" />
-
-        <TextView
-            android:id="@+id/tvSummaryMismatch"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="不相符：0" />
-
-        <TextView
-            android:id="@+id/tvSummaryUnchecked"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="未盘点：0" />
-    </LinearLayout>
+    </com.google.android.material.appbar.AppBarLayout>
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
-        android:orientation="horizontal">
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:padding="16dp"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
-        <EditText
-            android:id="@+id/etSearch"
-            android:layout_width="0dp"
+        <TextView
+            android:id="@+id/tvTaskName"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:textStyle="bold"
+            android:textSize="20sp"
+            android:text="任务名称" />
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            app:startIconDrawable="@android:drawable/ic_menu_search">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/etSearch"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="搜索资产 / 编号 / 地点"/>
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:orientation="horizontal">
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnFilterStatus"
+                style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                app:icon="@android:drawable/ic_menu_sort_alphabetically"
+                app:iconPadding="8dp"
+                app:iconGravity="textStart"
+                android:text="筛选状态" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnPrint"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="12dp"
+                android:layout_weight="1"
+                app:icon="@android:drawable/ic_menu_share"
+                app:iconPadding="8dp"
+                app:iconGravity="textStart"
+                android:text="@string/btn_print" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:orientation="horizontal">
+
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:layout_marginEnd="6dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:padding="12dp"
+                    android:orientation="vertical">
+
+                    <TextView android:text="总数" android:textSize="12sp"/>
+                    <TextView
+                        android:id="@+id/tvSummaryTotal"
+                        android:text="0"
+                        android:textStyle="bold"
+                        android:textSize="18sp"/>
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:layout_marginStart="6dp"
+                android:layout_marginEnd="6dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:padding="12dp"
+                    android:orientation="vertical">
+
+                    <TextView android:text="已匹配" android:textSize="12sp"/>
+                    <TextView
+                        android:id="@+id/tvSummaryMatched"
+                        android:text="0"
+                        android:textStyle="bold"
+                        android:textSize="18sp"/>
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:layout_marginStart="6dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:padding="12dp"
+                    android:orientation="vertical">
+
+                    <TextView android:text="未盘点" android:textSize="12sp"/>
+                    <TextView
+                        android:id="@+id/tvSummaryUnchecked"
+                        android:text="0"
+                        android:textStyle="bold"
+                        android:textSize="18sp"/>
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:orientation="horizontal">
+
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:layout_marginEnd="6dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:padding="12dp"
+                    android:orientation="vertical">
+
+                    <TextView android:text="不相符" android:textSize="12sp"/>
+                    <TextView
+                        android:id="@+id/tvSummaryMismatch"
+                        android:text="0"
+                        android:textStyle="bold"
+                        android:textSize="18sp"/>
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:layout_marginStart="6dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:padding="12dp"
+                    android:orientation="vertical">
+
+                    <TextView android:text="补打印" android:textSize="12sp"/>
+                    <TextView
+                        android:id="@+id/tvSummaryReprint"
+                        android:text="0"
+                        android:textStyle="bold"
+                        android:textSize="18sp"/>
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+        </LinearLayout>
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/rvAssets"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_marginTop="12dp"
             android:layout_weight="1"
-            android:hint="@string/search_hint"
-            android:imeOptions="actionSearch"
-            android:singleLine="true" />
+            android:overScrollMode="never" />
 
-        <Button
-            android:id="@+id/btnFilterStatus"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:minHeight="48dp"
-            android:layout_marginStart="8dp"
-            android:text="@string/filter_status" />
-    </LinearLayout>
-
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/rvAssets"
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1"
-        android:layout_marginTop="8dp"
-        android:overScrollMode="never" />
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:gravity="end"
-        android:orientation="horizontal"
-        android:layout_marginTop="8dp">
-
-        <Button
+        <com.google.android.material.button.MaterialButton
             android:id="@+id/btnInventory"
-            android:layout_width="0dp"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:minHeight="56dp"
-            android:paddingTop="12dp"
-            android:paddingBottom="12dp"
-            android:layout_weight="1"
-            android:text="@string/btn_inventory" />
-
-        <Button
-            android:id="@+id/btnPrint"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:minHeight="56dp"
-            android:paddingTop="12dp"
-            android:paddingBottom="12dp"
-            android:layout_marginStart="8dp"
-            android:layout_weight="1"
-            android:text="@string/btn_print" />
+            android:layout_marginTop="12dp"
+            app:icon="@android:drawable/ic_menu_camera"
+            app:iconPadding="8dp"
+            app:iconGravity="textStart"
+            android:text="扫码盘点" />
     </LinearLayout>
 
-</LinearLayout>
+</androidx.coordinatorlayout.widget.CoordinatorLayout>
