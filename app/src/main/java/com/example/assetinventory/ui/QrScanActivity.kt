@@ -14,6 +14,11 @@ import com.journeyapps.barcodescanner.CameraSettings
 
 class QrScanActivity : AppCompatActivity() {
 
+    companion object {
+        const val EXTRA_TASK_ID = "com.example.assetinventory.EXTRA_TASK_ID"
+        const val EXTRA_TASK_NAME = "com.example.assetinventory.EXTRA_TASK_NAME"
+    }
+
     private lateinit var btnBackTaskList: Button
     private lateinit var btnBack: Button
     private lateinit var barcodeView: DecoratedBarcodeView
