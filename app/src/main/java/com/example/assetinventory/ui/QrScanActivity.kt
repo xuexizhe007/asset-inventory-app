@@ -10,7 +10,7 @@ import com.example.assetinventory.data.LocalStore
 import com.journeyapps.barcodescanner.BarcodeCallback
 import com.journeyapps.barcodescanner.BarcodeResult
 import com.journeyapps.barcodescanner.DecoratedBarcodeView
-import com.journeyapps.barcodescanner.CameraSettings
+import com.journeyapps.barcodescanner.DecoratedBarcodeView.TorchListener
 
 class QrScanActivity : AppCompatActivity() {
 
@@ -78,6 +78,17 @@ class QrScanActivity : AppCompatActivity() {
         btnZoomIn = findViewById(R.id.btn_zoom_in)
         btnZoomOut = findViewById(R.id.btn_zoom_out)
 
+        // 设置闪光灯监听器
+        barcodeView.setTorchListener(object : TorchListener {
+            override fun onTorchOn() {
+                // 闪光灯打开时执行的操作
+            }
+
+            override fun onTorchOff() {
+                // 闪光灯关闭时执行的操作
+            }
+        })
+
         // 切换闪光灯状态
         btnFlashlight.setOnClickListener {
             if (barcodeView.isTorchOn) {
@@ -89,16 +100,14 @@ class QrScanActivity : AppCompatActivity() {
 
         // 放大
         btnZoomIn.setOnClickListener {
-            val cameraSettings = barcodeView.getCameraSettings()
-            cameraSettings.zoomFactor += 0.1f // 增加放大级别
-            barcodeView.setCameraSettings(cameraSettings)
+            val currentZoom = barcodeView.getZoomLevel()
+            barcodeView.setZoomLevel(currentZoom + 1) // 增加缩放级别
         }
 
         // 缩小
         btnZoomOut.setOnClickListener {
-            val cameraSettings = barcodeView.getCameraSettings()
-            cameraSettings.zoomFactor -= 0.1f // 减小放大级别
-            barcodeView.setCameraSettings(cameraSettings)
+            val currentZoom = barcodeView.getZoomLevel()
+            barcodeView.setZoomLevel(currentZoom - 1) // 减少缩放级别
         }
     }
 }
