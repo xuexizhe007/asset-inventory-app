@@ -98,16 +98,28 @@ class QrScanActivity : AppCompatActivity() {
             }
         }
 
-        // 放大
+        // 放大（更改缩放级别）
         btnZoomIn.setOnClickListener {
-            val currentZoom = barcodeView.getZoomLevel()
-            barcodeView.setZoomLevel(currentZoom + 1) // 增加缩放级别
+            // 缩放操作
+            barcodeView.camera?.let { camera ->
+                if (camera.parameters.isZoomSupported) {
+                    val zoom = camera.parameters.zoom + 1
+                    camera.parameters.zoom = zoom
+                    camera.parameters = camera.parameters
+                }
+            }
         }
 
-        // 缩小
+        // 缩小（更改缩放级别）
         btnZoomOut.setOnClickListener {
-            val currentZoom = barcodeView.getZoomLevel()
-            barcodeView.setZoomLevel(currentZoom - 1) // 减少缩放级别
+            // 缩放操作
+            barcodeView.camera?.let { camera ->
+                if (camera.parameters.isZoomSupported) {
+                    val zoom = camera.parameters.zoom - 1
+                    camera.parameters.zoom = zoom
+                    camera.parameters = camera.parameters
+                }
+            }
         }
     }
 }
