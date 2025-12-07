@@ -111,11 +111,11 @@
             app:cardCornerRadius="12dp"
             app:cardElevation="4dp">
 
+            <!-- 修正点：删除了 app:zxing_scanner_layout 属性，使用默认布局 -->
             <com.journeyapps.barcodescanner.DecoratedBarcodeView
                 android:id="@+id/barcodeScanner"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                app:zxing_scanner_layout="@layout/custom_barcode_scanner" />
+                android:layout_height="match_parent" />
 
         </androidx.cardview.widget.CardView>
     </LinearLayout>
@@ -128,9 +128,10 @@
         android:elevation="8dp"
         android:padding="12dp">
 
+        <!-- 修正点：使用了标准样式 Widget.MaterialComponents.Button -->
         <Button
             android:id="@+id/btnBackTaskList"
-            style="@style/AppTheme.Button.TopBar"
+            style="@style/Widget.MaterialComponents.Button"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginEnd="8dp"
@@ -139,7 +140,7 @@
 
         <Button
             android:id="@+id/btnBack"
-            style="@style/AppTheme.Button.TopBar"
+            style="@style/Widget.MaterialComponents.Button"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="8dp"
