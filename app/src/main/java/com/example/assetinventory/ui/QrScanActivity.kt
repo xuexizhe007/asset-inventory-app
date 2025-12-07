@@ -1,8 +1,11 @@
 package com.example.assetinventory.ui
 
 import android.content.Intent
+import android.hardware.Camera
 import android.os.Bundle
 import android.widget.Button
+import android.widget.SeekBar
+import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.example.assetinventory.R
@@ -10,26 +13,22 @@ import com.example.assetinventory.data.LocalStore
 import com.journeyapps.barcodescanner.BarcodeCallback
 import com.journeyapps.barcodescanner.BarcodeResult
 import com.journeyapps.barcodescanner.DecoratedBarcodeView
-import com.journeyapps.barcodescanner.DecoratedBarcodeView.TorchListener
-import com.journeyapps.barcodescanner.CameraSettings
 
 class QrScanActivity : AppCompatActivity() {
-
-    companion object {
-        const val EXTRA_TASK_ID = "com.example.assetinventory.EXTRA_TASK_ID"
-        const val EXTRA_TASK_NAME = "com.example.assetinventory.EXTRA_TASK_NAME"
-    }
 
     private lateinit var btnBackTaskList: Button
     private lateinit var btnBack: Button
     private lateinit var barcodeView: DecoratedBarcodeView
-    private lateinit var btnFlashlight: Button
-    private lateinit var btnZoomIn: Button
-    private lateinit var btnZoomOut: Button
+    private lateinit var btnFlash: Button
+    private lateinit var seekBarZoom: SeekBar
+    private lateinit var tvTitle: TextView // 用于更新标题
 
     private var handled = false
     private var taskId: Long = -1L
     private var taskName: String = ""
+    
+    // 闪光灯状态
+    private var isFlashOn = false
 
     private val callback = object : BarcodeCallback {
         override fun barcodeResult(result: BarcodeResult?) {
@@ -40,7 +39,8 @@ class QrScanActivity : AppCompatActivity() {
             val asset = LocalStore.findAssetByCode(this@QrScanActivity, taskId, code)
             if (asset == null) {
                 Toast.makeText(this@QrScanActivity, "未找到资产编码：$code", Toast.LENGTH_LONG).show()
-                finish()
+                // 延迟一下重新允许扫码，否则Toast可能重叠
+                barcodeView.postDelayed({ handled = false }, 2000)
             } else {
                 val intent = Intent(this@QrScanActivity, AssetDetailActivity::class.java)
                 intent.putExtra(AssetDetailActivity.EXTRA_TASK_ID, taskId)
@@ -61,56 +61,108 @@ class QrScanActivity : AppCompatActivity() {
         taskName = intent.getStringExtra(EXTRA_TASK_NAME) ?: ""
 
         if (taskId <= 0L) {
-            Toast.makeText(this, "无效的任务ID", Toast.LENGTH_LONG).show()
+            Toast.makeText(this, "任务信息缺失", Toast.LENGTH_SHORT).show()
+            finish()
+            return
+        }
+
+        // 初始化视图
+        btnBackTaskList = findViewById(R.id.btnBackTaskList)
+        btnBack = findViewById(R.id.btnBack)
+        barcodeView = findViewById(R.id.barcodeScanner)
+        btnFlash = findViewById(R.id.btnFlash)
+        seekBarZoom = findViewById(R.id.seekBarZoom)
+        tvTitle = findViewById(R.id.tvTitle)
+
+        // 设置标题
+        tvTitle.text = "扫码 - $taskName"
+        // 如果使用了系统 ActionBar，也可以设置一下
+        supportActionBar?.hide() // 使用了自定义 Toolbar，隐藏系统 ActionBar
+
+        // 按钮事件
+        btnBackTaskList.setOnClickListener {
+            val intent = Intent(this, TaskListActivity::class.java)
+            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
+            startActivity(intent)
             finish()
         }
 
-        barcodeView = findViewById(R.id.barcode_scanner)
-        barcodeView.decodeContinuous(callback)
+        btnBack.setOnClickListener {
+            finish()
+        }
 
-        btnBackTaskList = findViewById(R.id.btn_back_task_list)
-        btnBack = findViewById(R.id.btn_back)
-
-        btnBackTaskList.setOnClickListener { finish() }
-        btnBack.setOnClickListener { finish() }
-
-        // 初始化放大和闪光灯控制按钮
-        btnFlashlight = findViewById(R.id.btn_flashlight)
-        btnZoomIn = findViewById(R.id.btn_zoom_in)
-        btnZoomOut = findViewById(R.id.btn_zoom_out)
-
-        // 设置闪光灯监听器
-        barcodeView.setTorchListener(object : TorchListener {
-            override fun onTorchOn() {
-                // 闪光灯打开时执行的操作
-            }
-
-            override fun onTorchOff() {
-                // 闪光灯关闭时执行的操作
-            }
-        })
-
-        // 切换闪光灯状态
-        btnFlashlight.setOnClickListener {
-            if (barcodeView.isTorchOn) {
+        // --- 功能 1: 闪光灯控制 ---
+        btnFlash.setOnClickListener {
+            if (isFlashOn) {
                 barcodeView.setTorchOff()
+                isFlashOn = false
+                btnFlash.text = "开启闪光灯"
             } else {
                 barcodeView.setTorchOn()
+                isFlashOn = true
+                btnFlash.text = "关闭闪光灯"
             }
         }
 
-        // 放大（调整缩放）
-        btnZoomIn.setOnClickListener {
-            val cameraSettings = barcodeView.getCameraSettings()
-            cameraSettings.zoomFactor += 0.1f // 增加缩放级别
-            barcodeView.setCameraSettings(cameraSettings)
-        }
+        // --- 功能 2: 镜头缩放控制 ---
+        // SeekBar 范围 0-100，映射到相机的 Zoom 级别
+        seekBarZoom.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
+            override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
+                if (fromUser) {
+                    updateCameraZoom(progress)
+                }
+            }
 
-        // 缩小（调整缩放）
-        btnZoomOut.setOnClickListener {
-            val cameraSettings = barcodeView.getCameraSettings()
-            cameraSettings.zoomFactor -= 0.1f // 减少缩放级别
-            barcodeView.setCameraSettings(cameraSettings)
+            override fun onStartTrackingTouch(seekBar: SeekBar?) {}
+            override fun onStopTrackingTouch(seekBar: SeekBar?) {}
+        })
+
+        barcodeView.decodeContinuous(callback)
+    }
+
+    /**
+     * 更新相机焦距
+     * 使用 ZXing 库的 changeCameraParameters 接口
+     */
+    private fun updateCameraZoom(progress: Int) {
+        barcodeView.barcodeView.changeCameraParameters { params ->
+            // Android Camera API (deprecated but used by ZXing Embedded)
+            if (params.isZoomSupported) {
+                val maxZoom = params.maxZoom
+                // 计算目标 zoom 值
+                val targetZoom = (maxZoom * progress) / 100
+                
+                if (params.zoom != targetZoom) {
+                    params.zoom = targetZoom
+                }
+            }
+            params
         }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        handled = false
+        barcodeView.resume()
+        
+        // 恢复时重置 UI 状态
+        if (isFlashOn) {
+            barcodeView.setTorchOn()
+        }
+    }
+
+    override fun onPause() {
+        super.onPause()
+        barcodeView.pause()
+    }
+
+    // 处理按键事件，如音量键控制缩放（可选增强体验）
+    override fun onKeyDown(keyCode: Int, event: android.view.KeyEvent?): Boolean {
+        return barcodeView.onKeyDown(keyCode, event) || super.onKeyDown(keyCode, event)
+    }
+
+    companion object {
+        const val EXTRA_TASK_ID = "extra_task_id"
+        const val EXTRA_TASK_NAME = "extra_task_name"
     }
 }
