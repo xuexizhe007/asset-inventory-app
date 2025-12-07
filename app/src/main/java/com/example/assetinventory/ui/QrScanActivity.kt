@@ -10,12 +10,16 @@ import com.example.assetinventory.data.LocalStore
 import com.journeyapps.barcodescanner.BarcodeCallback
 import com.journeyapps.barcodescanner.BarcodeResult
 import com.journeyapps.barcodescanner.DecoratedBarcodeView
+import com.journeyapps.barcodescanner.CameraSettings
 
 class QrScanActivity : AppCompatActivity() {
 
     private lateinit var btnBackTaskList: Button
     private lateinit var btnBack: Button
     private lateinit var barcodeView: DecoratedBarcodeView
+    private lateinit var btnFlashlight: Button
+    private lateinit var btnZoomIn: Button
+    private lateinit var btnZoomOut: Button
 
     private var handled = false
     private var taskId: Long = -1L
@@ -51,44 +55,45 @@ class QrScanActivity : AppCompatActivity() {
         taskName = intent.getStringExtra(EXTRA_TASK_NAME) ?: ""
 
         if (taskId <= 0L) {
-            Toast.makeText(this, "任务信息缺失", Toast.LENGTH_SHORT).show()
-            finish()
-            return
-        }
-
-        supportActionBar?.title = "扫码盘点 - $taskName"
-
-        btnBackTaskList = findViewById(R.id.btnBackTaskList)
-        btnBack = findViewById(R.id.btnBack)
-        barcodeView = findViewById(R.id.barcodeScanner)
-
-        btnBackTaskList.setOnClickListener {
-            val intent = Intent(this, TaskListActivity::class.java)
-            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
-            startActivity(intent)
+            Toast.makeText(this, "无效的任务ID", Toast.LENGTH_LONG).show()
             finish()
         }
 
-        btnBack.setOnClickListener {
-            finish()
-        }
-
+        barcodeView = findViewById(R.id.barcode_scanner)
         barcodeView.decodeContinuous(callback)
-    }
 
-    override fun onResume() {
-        super.onResume()
-        handled = false
-        barcodeView.resume()
-    }
+        btnBackTaskList = findViewById(R.id.btn_back_task_list)
+        btnBack = findViewById(R.id.btn_back)
 
-    override fun onPause() {
-        super.onPause()
-        barcodeView.pause()
-    }
+        btnBackTaskList.setOnClickListener { finish() }
+        btnBack.setOnClickListener { finish() }
 
-    companion object {
-        const val EXTRA_TASK_ID = "extra_task_id"
-        const val EXTRA_TASK_NAME = "extra_task_name"
+        // 初始化放大和闪光灯控制按钮
+        btnFlashlight = findViewById(R.id.btn_flashlight)
+        btnZoomIn = findViewById(R.id.btn_zoom_in)
+        btnZoomOut = findViewById(R.id.btn_zoom_out)
+
+        // 切换闪光灯状态
+        btnFlashlight.setOnClickListener {
+            if (barcodeView.isTorchOn) {
+                barcodeView.setTorchOff()
+            } else {
+                barcodeView.setTorchOn()
+            }
+        }
+
+        // 放大
+        btnZoomIn.setOnClickListener {
+            val cameraSettings = barcodeView.getCameraSettings()
+            cameraSettings.zoomFactor += 0.1f // 增加放大级别
+            barcodeView.setCameraSettings(cameraSettings)
+        }
+
+        // 缩小
+        btnZoomOut.setOnClickListener {
+            val cameraSettings = barcodeView.getCameraSettings()
+            cameraSettings.zoomFactor -= 0.1f // 减小放大级别
+            barcodeView.setCameraSettings(cameraSettings)
+        }
     }
 }
