@@ -11,6 +11,7 @@ import com.journeyapps.barcodescanner.BarcodeCallback
 import com.journeyapps.barcodescanner.BarcodeResult
 import com.journeyapps.barcodescanner.DecoratedBarcodeView
 import com.journeyapps.barcodescanner.DecoratedBarcodeView.TorchListener
+import com.journeyapps.barcodescanner.CameraSettings
 
 class QrScanActivity : AppCompatActivity() {
 
@@ -98,28 +99,18 @@ class QrScanActivity : AppCompatActivity() {
             }
         }
 
-        // 放大（更改缩放级别）
+        // 放大（调整缩放）
         btnZoomIn.setOnClickListener {
-            // 缩放操作
-            barcodeView.camera?.let { camera ->
-                if (camera.parameters.isZoomSupported) {
-                    val zoom = camera.parameters.zoom + 1
-                    camera.parameters.zoom = zoom
-                    camera.parameters = camera.parameters
-                }
-            }
+            val cameraSettings = barcodeView.getCameraSettings()
+            cameraSettings.zoomFactor += 0.1f // 增加缩放级别
+            barcodeView.setCameraSettings(cameraSettings)
         }
 
-        // 缩小（更改缩放级别）
+        // 缩小（调整缩放）
         btnZoomOut.setOnClickListener {
-            // 缩放操作
-            barcodeView.camera?.let { camera ->
-                if (camera.parameters.isZoomSupported) {
-                    val zoom = camera.parameters.zoom - 1
-                    camera.parameters.zoom = zoom
-                    camera.parameters = camera.parameters
-                }
-            }
+            val cameraSettings = barcodeView.getCameraSettings()
+            cameraSettings.zoomFactor -= 0.1f // 减少缩放级别
+            barcodeView.setCameraSettings(cameraSettings)
         }
     }
 }
