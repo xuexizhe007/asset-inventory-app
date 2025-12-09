@@ -18,11 +18,13 @@ import kotlin.math.min
 object PdfGenerator {
 
     /**
-     * 最终要求：
-     * 1) 使用人在使用部门上面
-     * 2) 资产名称独占一行，允许占据整行(按全页宽度)，不换行，超长缩小 value 字体（label 不缩小）
-     * 3) 使用人 value 不换行，超长缩小 value 字体（label 不缩小）
-     * 4) 使用部门单行：不换行，超长缩小 value 字体（label 不缩小）
+     * 生成标签 PDF（每页一张标签）
+     *
+     * 需求：
+     * 1) 标签尺寸：7cm x 4cm
+     * 2) 左侧文本（资产名称、编码、使用人、部门、存放地点、状态）
+     * 3) 右侧二维码
+     * 4) 字体自动缩放，避免溢出
      * 5) 二维码：白边更小 + 码体更大（真正增大二维码绘制尺寸）
      * 6) 若资产类别是低值易耗品，则资产名称后追加“(低值易耗品)”
      */
@@ -38,19 +40,12 @@ object PdfGenerator {
         val widthPoints = (7f / 2.54f * 72f).toInt()
         val heightPoints = (4f / 2.54f * 72f).toInt()
 
-        val labelPaint = Paint().apply {
-            color = Color.BLACK
-            textSize = 10f
-            isAntiAlias = true
+        val fileName = buildString {
+            append("labels")
+            if (!taskName.isNullOrBlank()) append("_").append(taskName)
+            append(".pdf")
         }
-
-        val valuePaint = Paint().apply {
-            color = Color.BLACK
-            textSize = 10f
-            isAntiAlias = true
-        }
-
-        val title = taskName ?: "资产标签"
+        val file = File(context.cacheDir, fileName)
 
         assets.forEachIndexed { index, asset ->
             val pageInfo = PdfDocument.PageInfo.Builder(widthPoints, heightPoints, index + 1).create()
@@ -70,81 +65,147 @@ object PdfGenerator {
             var y = padding + 10f
             var userBaseline: Float? = null
 
-            fun drawWrapped(label: String, value: String) {
-                val labelPrefix = "$label："
-                val full = labelPrefix + value
-                val chars = full.toCharArray()
-                var start = 0
-                while (start < chars.size) {
-                    var i = start
-                    var line = ""
-                    while (i < chars.size) {
-                        val candidate = (line + chars[i])
-                        val w = labelPaint.measureText(candidate)
-                        if (w > maxTextWidth && line.isNotEmpty()) break
-                        line = candidate
-                        i++
-                    }
-                    canvas.drawText(line, padding, y, labelPaint)
-                    y += lineHeight
-                    start += line.length
-                }
+            // 背景白
+            canvas.drawColor(Color.WHITE)
+
+            // 标题（资产名称）
+            val titlePaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+                color = Color.BLACK
+                textSize = 14f
+                typeface = Typeface.DEFAULT_BOLD
             }
 
-            /**
-             * 单行绘制：label 固定字号，value 可缩小字号，不允许换行
-             * maxWidth 指整行允许占用的最大宽度（从 x=padding 开始）
-             */
-            fun drawSingleLineShrinkValue(label: String, value: String, maxWidth: Float, minValueSize: Float = 7.5f) {
-                val labelText = "$label："
-                val labelW = labelPaint.measureText(labelText)
+            // 标签与值
+            val labelPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+                color = Color.BLACK
+                textSize = 10f
+                typeface = Typeface.DEFAULT_BOLD
+            }
+            val valuePaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+                color = Color.BLACK
+                textSize = 10f
+                typeface = Typeface.DEFAULT
+            }
 
+            // ========== 标题自动缩放 ==========
+            val title = buildString {
+                append(asset.name ?: "")
+                if (asset.category?.contains("低值易耗", ignoreCase = true) == true) {
+                    append("(低值易耗品)")
+                }
+            }.ifBlank { "未命名资产" }
+
+            val titleMaxSize = 14f
+            val titleMinSize = 8f
+
+            var tSize = titleMaxSize
+            titlePaint.textSize = tSize
+            while (titlePaint.measureText(title) > maxTextWidth && tSize > titleMinSize) {
+                tSize -= 0.5f
+                titlePaint.textSize = tSize
+            }
+            canvas.drawText(title, padding, y, titlePaint)
+            y += lineHeight + 2f
+
+            // 画分隔线
+            val linePaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+                color = Color.LTGRAY
+                strokeWidth = 1f
+            }
+            canvas.drawLine(padding, y, textAreaWidth - padding, y, linePaint)
+            y += lineHeight - 4f
+
+            // 通用函数：绘制 label + value，并自动缩放 value 字体避免溢出
+            fun drawLabelValue(labelText: String, valueRaw: String?, recordUserBaseline: Boolean = false) {
+                val value = valueRaw?.ifBlank { "-" } ?: "-"
+
+                val labelW = labelPaint.measureText(labelText)
                 val originalSize = valuePaint.textSize
+                val minValueSize = 7f
+
                 var size = originalSize
+                valuePaint.textSize = size
 
                 fun totalWidth(): Float {
-                    valuePaint.textSize = size
                     return labelW + valuePaint.measureText(value)
                 }
 
-                while (totalWidth() > maxWidth && size > minValueSize) {
+                while (totalWidth() > maxTextWidth && size > minValueSize) {
                     size -= 0.5f
+                    valuePaint.textSize = size
                 }
-                valuePaint.textSize = size
 
                 canvas.drawText(labelText, padding, y, labelPaint)
                 canvas.drawText(value, padding + labelW, y, valuePaint)
+
+                if (recordUserBaseline) userBaseline = y
 
                 y += lineHeight
                 valuePaint.textSize = originalSize
             }
 
             // ========= 资产编码（单行） =========
-            drawSingleLineShrinkValue("资产编码", asset.code, maxFullWidth)
+            // 编码用稍大一点字体，自动缩放到不超过整行
+            run {
+                val codeLabel = "编码："
+                val code = asset.code ?: "-"
+                val codeLabelW = labelPaint.measureText(codeLabel)
 
-            // ========= 资产名称（独占一行，占全页宽度，不换行，超长缩小 value） =========
-            val isLowValue = asset.category?.trim() == "低值易耗品"
-            val nameToPrint = asset.name + if (isLowValue) "(低值易耗品)" else ""
-            drawSingleLineShrinkValue("资产名称", nameToPrint, maxFullWidth)
+                val codeValuePaint = Paint(valuePaint).apply {
+                    textSize = 11f
+                    typeface = Typeface.DEFAULT_BOLD
+                }
 
-            // ========= 使用人（在使用部门上面，单行，不换行，超长缩小 value） =========
-            val beforeUserY = y
-            drawSingleLineShrinkValue("使用人", asset.user.orEmpty(), maxTextWidth)
-            userBaseline = beforeUserY
+                val minSize = 8f
+                var size = codeValuePaint.textSize
+                while ((codeLabelW + codeValuePaint.measureText(code)) > maxTextWidth && size > minSize) {
+                    size -= 0.5f
+                    codeValuePaint.textSize = size
+                }
 
-            // ========= 使用部门（单行，不换行，超长缩小 value） ✅ 你的新要求 =========
-            drawSingleLineShrinkValue("使用部门", asset.department.orEmpty(), maxTextWidth)
+                canvas.drawText(codeLabel, padding, y, labelPaint)
+                canvas.drawText(code, padding + codeLabelW, y, codeValuePaint)
+                y += lineHeight
+            }
 
-            // ========= 存放地点（允许换行） =========
-            drawWrapped("存放地点", asset.location.orEmpty())
+            // ========= 使用人 / 部门 / 存放地点 / 状态 =========
+            drawLabelValue("使用人：", asset.user, recordUserBaseline = true)
+            drawLabelValue("部门：", asset.department)
+            drawLabelValue("地点：", asset.location)
+            drawLabelValue("状态：", asset.status)
 
-            // ========= 投用日期（单行） =========
-            drawSingleLineShrinkValue("投用日期", asset.startDate, maxTextWidth)
+            // ========= 备注（如果有的话，按需缩放） =========
+            run {
+                val remark = asset.remark?.trim().orEmpty()
+                if (remark.isNotBlank()) {
+                    val label = "备注："
+                    val labelW = labelPaint.measureText(label)
+                    val originalSize = valuePaint.textSize
+                    val minSize = 7f
+                    var size = originalSize
 
-            // ========= 二维码：白边更小 + 码体更大 =========
+                    valuePaint.textSize = size
+                    while ((labelW + valuePaint.measureText(remark)) > maxTextWidth && size > minSize) {
+                        size -= 0.5f
+                        valuePaint.textSize = size
+                    }
+
+                    canvas.drawText(label, padding, y, labelPaint)
+                    canvas.drawText(remark, padding + labelW, y, valuePaint)
+                    y += lineHeight
+                    valuePaint.textSize = originalSize
+                }
+            }
+
+            // ========= 右侧二维码 =========
             try {
-                val qrPadding = 2f // 比 padding 更小：让二维码矩形尺寸更大
-                val left = textAreaWidth + qrPadding
+                // 二维码区 padding 更小：让二维码矩形尺寸更大
+                val qrPadding = 2f
+
+                // 某些标签打印机右侧有不可打印边距，导致二维码右侧被裁切。
+                // 这里将二维码整体向左平移约 3.5mm（10pt），以保证实际打印完整。
+                val qrShiftLeft = 10f
+                val left = max(padding, textAreaWidth + qrPadding - qrShiftLeft)
 
                 // 顶部与“使用人”对齐
                 val top = (userBaseline ?: (padding + 10f)) - labelPaint.textSize
@@ -176,13 +237,7 @@ object PdfGenerator {
             pdfDocument.finishPage(page)
         }
 
-        // 写入临时文件并分享
         try {
-            val fileName = "${title}_${System.currentTimeMillis()}.pdf"
-            val cacheDir = File(context.cacheDir, "share_pdf")
-            if (!cacheDir.exists()) cacheDir.mkdirs()
-            val file = File(cacheDir, fileName)
-
             FileOutputStream(file).use { os ->
                 pdfDocument.writeTo(os)
             }
@@ -199,32 +254,24 @@ object PdfGenerator {
                 putExtra(Intent.EXTRA_STREAM, uri)
                 addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
             }
-            context.startActivity(Intent.createChooser(intent, "分享资产标签 PDF"))
+            context.startActivity(Intent.createChooser(intent, "导出标签PDF"))
         } catch (e: Exception) {
-            e.printStackTrace()
-            Toast.makeText(context, "生成或分享 PDF 时出错：${e.message}", Toast.LENGTH_LONG).show()
+            Toast.makeText(context, "导出失败：${e.message}", Toast.LENGTH_SHORT).show()
         }
     }
 
-    /**
-     * marginModules：二维码白边模块数（quiet zone）。
-     */
-    private fun createQrBitmap(content: String, size: Int, marginModules: Int): Bitmap {
-        val writer = QRCodeWriter()
-        val hints = hashMapOf<EncodeHintType, Any>().apply {
-            put(EncodeHintType.MARGIN, marginModules)
-        }
-        val bitMatrix = writer.encode(content, BarcodeFormat.QR_CODE, size, size, hints)
-
-        val width = bitMatrix.width
-        val height = bitMatrix.height
-        val pixels = IntArray(width * height)
-        for (y in 0 until height) {
-            val offset = y * width
-            for (x in 0 until width) {
-                pixels[offset + x] = if (bitMatrix.get(x, y)) Color.BLACK else Color.WHITE
+    private fun createQrBitmap(content: String?, size: Int, marginModules: Int = 0): Bitmap {
+        val value = content?.ifBlank { " " } ?: " "
+        val hints = hashMapOf<EncodeHintType, Any>(
+            EncodeHintType.MARGIN to marginModules
+        )
+        val matrix = QRCodeWriter().encode(value, BarcodeFormat.QR_CODE, size, size, hints)
+        val bmp = Bitmap.createBitmap(size, size, Bitmap.Config.ARGB_8888)
+        for (x in 0 until size) {
+            for (y in 0 until size) {
+                bmp.setPixel(x, y, if (matrix[x, y]) Color.BLACK else Color.WHITE)
             }
         }
-        return Bitmap.createBitmap(pixels, width, height, Bitmap.Config.RGB_565)
+        return bmp
     }
 }
